@@ -1,5 +1,6 @@
 import ConfigParser
 import gwy
+import gwyutils
 import numpy
 import StringIO
 import zipfile
@@ -65,6 +66,10 @@ def load(filename, mode=None):
     >>> brick.get_val(0,0,0)
     3.0
     
+    If the channel data is too short to fill the brick, it gets set to NaN
+    >>> brick.get_val(0,0,1)
+    nan
+    
     Check if the preview has proper content
     >>> preview = container.get_object_by_name('/brick/0/preview')
     >>> preview.get_val(0,0)
@@ -114,7 +119,8 @@ def load(filename, mode=None):
             offset     = float(shared_data['lcd-info.{}.encoder.scaling.offset'.format(lcd_info)])
             multiplier = float(shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(lcd_info)])
             
-            brick = gwy.Brick(ilength, jlength, num_points, ulength, vlength, duration, True)
+            brick = gwy.Brick(ilength, jlength, num_points, ulength, vlength, duration, False)
+            brickarray = gwyutils.brick_data_as_array(brick)
             
             brick.set_si_unit_x(gridunit)
             brick.set_si_unit_y(gridunit)
@@ -129,8 +135,10 @@ def load(filename, mode=None):
                     channel = numpy.frombuffer(zip_file.read('index/{}/segments/{}/channels/{}.dat'.format(index, segmentnumber, channelname)),
                                                numpy.dtype('>i'))
                     channel = channel*multiplier + offset
-                    for k,value in enumerate(channel):
-                        brick.set_val(i, j, k, value)
+                    length = len(channel)
+                    channel.resize(num_points)
+                    channel[length:] = float('nan')
+                    brickarray[i][j] = channel
                         
             bricknumber = lcd_info + len(channels)*segmentnumber
             container.set_object_by_name("/brick/{}".format(bricknumber), brick)
@@ -163,7 +171,7 @@ if __name__ == "__main__":
     f.writestr('header.properties', textwrap.dedent('''
         type=quantitative-imaging-map
         quantitative-imaging-map.settings.force-settings.extend.duration=0
-        quantitative-imaging-map.settings.force-settings.extend.num-points=1
+        quantitative-imaging-map.settings.force-settings.extend.num-points=2
         quantitative-imaging-map.position-pattern.grid.ulength=1
         quantitative-imaging-map.position-pattern.grid.vlength=1
         quantitative-imaging-map.position-pattern.grid.unit.unit=m
