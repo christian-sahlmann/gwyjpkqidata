@@ -84,6 +84,7 @@ def load(filename, mode=None):
     >>> meta.get_string_by_name('distance.name')
     'Distance'
     """
+    gwy.gwy_app_wait_start(gwy.gwy_app_main_window_get(), plugin_desc)
     zip_file = zipfile.ZipFile(filename)
     container = gwy.Container()
     
@@ -107,7 +108,8 @@ def load(filename, mode=None):
     timeunit = gwy.SIUnit()
     timeunit.set_from_string('s')
     
-    for segmentnumber in range(int(shared_data['force-segment-header-infos.count'])):
+    segmentcount = int(shared_data['force-segment-header-infos.count'])
+    for segmentnumber in range(segmentcount):
         segment_header = read_properties('index/0/segments/{}/segment-header.properties'.format(segmentnumber))
         segment_style = shared_data['force-segment-header-info.{}.settings.segment-settings.style'.format(segmentnumber)]
         duration = float(header['quantitative-imaging-map.settings.force-settings.{}.duration'.format(segment_style)])
@@ -130,6 +132,7 @@ def load(filename, mode=None):
             brick.set_si_unit_w(channelunit)
             
             for i in range(ilength):
+                gwy.gwy_app_wait_set_fraction(1.0*((segmentnumber*len(channels)+lcd_info)*ilength+i)/segmentcount/len(channels)/ilength)
                 for j in range(jlength):
                     index = i+(jlength-1-j)*ilength
                     channel = numpy.frombuffer(zip_file.read('index/{}/segments/{}/channels/{}.dat'.format(index, segmentnumber, channelname)),
@@ -154,6 +157,7 @@ def load(filename, mode=None):
                 meta.set_string_by_name(key[len(prefix):], shared_data[key])
         container.set_object_by_name("/brick/{}/meta".format(lcd_info), meta)
         
+    gwy.gwy_app_wait_finish()
     return container
 
 if __name__ == "__main__":
@@ -196,6 +200,10 @@ if __name__ == "__main__":
     PIL.Image.new('1', (1,1)).save(data_image, 'TIFF')
     f.writestr('data-image.jpk-qi-image', data_image.getvalue())
     f.close()
+    
+    gwy.gwy_app_wait_start        = lambda x,y: None
+    gwy.gwy_app_wait_set_fraction = lambda x: None
+    gwy.gwy_app_wait_finish       = lambda: None
     
     # run tests
     doctest.testmod()
