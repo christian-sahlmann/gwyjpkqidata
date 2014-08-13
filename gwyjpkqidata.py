@@ -54,7 +54,7 @@ def load(filename, mode=None):
     >>> container = load(file_path)
     
     Check if the brick has proper units and content
-    >>> brick = container.get_object_by_name('/brick/0')
+    >>> brick = container['/brick/0']
     >>> brick.get_si_unit_x().get_string(gwy.SI_UNIT_FORMAT_PLAIN)
     'm'
     >>> brick.get_si_unit_y().get_string(gwy.SI_UNIT_FORMAT_PLAIN)
@@ -71,17 +71,17 @@ def load(filename, mode=None):
     nan
     
     Check if the preview has proper content
-    >>> preview = container.get_object_by_name('/brick/0/preview')
+    >>> preview = container['/brick/0/preview']
     >>> preview.get_val(0,0)
     3.0
     
     The title should be set correctly
-    >>> container.get_string_by_name('/brick/0/title')
+    >>> container['/brick/0/title']
     'extend vDeflection'
     
     The metadata should be initialized
-    >>> meta = container.get_object_by_name('/brick/0/meta')
-    >>> meta.get_string_by_name('distance.name')
+    >>> meta = container['/brick/0/meta']
+    >>> meta['distance.name']
     'Distance'
     """
     gwy.gwy_app_wait_start(gwy.gwy_app_main_window_get(), plugin_desc)
@@ -144,18 +144,18 @@ def load(filename, mode=None):
                     brickarray[i][j] = channel
                         
             bricknumber = lcd_info + len(channels)*segmentnumber
-            container.set_object_by_name("/brick/{}".format(bricknumber), brick)
+            container["/brick/{}".format(bricknumber)] = brick
             preview = gwy.DataField(ilength, jlength, ilength, jlength, False)
             brick.min_plane(preview, 0, 0, 0, ilength, jlength, -1, True)
-            container.set_object_by_name("/brick/{}/preview".format(bricknumber), preview)
-            container.set_string_by_name("/brick/{}/title".format(bricknumber), "{} {}".format(segment_style, channelname))
+            container["/brick/{}/preview".format(bricknumber)] = preview
+            container["/brick/{}/title".format(bricknumber)] = "{} {}".format(segment_style, channelname)
         
         meta = gwy.Container()
         for key in shared_data:
             prefix = 'lcd-info.{}.conversion-set.conversion.'.format(lcd_info)
             if key.startswith(prefix):
                 meta.set_string_by_name(key[len(prefix):], shared_data[key])
-        container.set_object_by_name("/brick/{}/meta".format(lcd_info), meta)
+        container["/brick/{}/meta".format(lcd_info)] = meta
         
     gwy.gwy_app_wait_finish()
     return container
