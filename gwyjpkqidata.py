@@ -83,6 +83,8 @@ def load(filename, mode=None):
     >>> meta = container['/brick/0/meta']
     >>> meta['distance.name']
     'Distance'
+    >>> container['/brick/1/meta']['force.name']
+    'Force'
     """
     gwy.gwy_app_wait_start(gwy.gwy_app_main_window_get(), plugin_desc)
     zip_file = zipfile.ZipFile(filename)
@@ -150,12 +152,12 @@ def load(filename, mode=None):
             container["/brick/{}/preview".format(bricknumber)] = preview
             container["/brick/{}/title".format(bricknumber)] = "{} {}".format(segment_style, channelname)
         
-        meta = gwy.Container()
-        for key in shared_data:
-            prefix = 'lcd-info.{}.conversion-set.conversion.'.format(lcd_info)
-            if key.startswith(prefix):
-                meta.set_string_by_name(key[len(prefix):], shared_data[key])
-        container["/brick/{}/meta".format(lcd_info)] = meta
+            meta = gwy.Container()
+            for key in shared_data:
+                prefix = 'lcd-info.{}.conversion-set.conversion.'.format(lcd_info)
+                if key.startswith(prefix):
+                    meta.set_string_by_name(key[len(prefix):], shared_data[key])
+            container["/brick/{}/meta".format(lcd_info)] = meta
         
     gwy.gwy_app_wait_finish()
     return container
@@ -189,13 +191,19 @@ if __name__ == "__main__":
         lcd-info.0.encoder.scaling.offset=1
         lcd-info.0.encoder.scaling.multiplier=2
         lcd-info.0.conversion-set.conversion.distance.name=Distance
+        lcd-info.1.unit.unit=V
+        lcd-info.1.encoder.scaling.offset=1
+        lcd-info.1.encoder.scaling.multiplier=2
+        lcd-info.1.conversion-set.conversion.force.name=Force
         '''))
     f.writestr('index/0/header.properties', 'type=quantitative-imaging-series')
     f.writestr('index/0/segments/0/segment-header.properties', textwrap.dedent('''
-        channels.list=vDeflection
+        channels.list=vDeflection height
         channel.vDeflection.lcd-info.*=0
+        channel.height.lcd-info.*=1
         '''))
     f.writestr('index/0/segments/0/channels/vDeflection.dat', numpy.array([1], numpy.dtype('>i')).tostring())
+    f.writestr('index/0/segments/0/channels/height.dat', numpy.array([1], numpy.dtype('>i')).tostring())
     data_image = io.BytesIO()
     PIL.Image.new('1', (1,1)).save(data_image, 'TIFF')
     f.writestr('data-image.jpk-qi-image', data_image.getvalue())
