@@ -103,12 +103,7 @@ def load(filename, mode=None):
     jlength =   int(header['quantitative-imaging-map.position-pattern.grid.jlength'])
     ulength = float(header['quantitative-imaging-map.position-pattern.grid.ulength'])
     vlength = float(header['quantitative-imaging-map.position-pattern.grid.vlength'])
-
-    gridunit = gwy.SIUnit()
-    gridunit.set_from_string(header['quantitative-imaging-map.position-pattern.grid.unit.unit'])
-    
-    timeunit = gwy.SIUnit()
-    timeunit.set_from_string('s')
+    gridunit = header['quantitative-imaging-map.position-pattern.grid.unit.unit']
     
     segmentcount = int(shared_data['force-segment-header-infos.count'])
     for segmentnumber in range(segmentcount):
@@ -126,12 +121,10 @@ def load(filename, mode=None):
             brick = gwy.Brick(ilength, jlength, num_points, ulength, vlength, duration, False)
             brickarray = gwyutils.brick_data_as_array(brick)
             
-            brick.set_si_unit_x(gridunit)
-            brick.set_si_unit_y(gridunit)
-            brick.set_si_unit_z(timeunit)
-            channelunit = gwy.SIUnit()
-            channelunit.set_from_string(shared_data['lcd-info.{}.unit.unit'.format(lcd_info)])
-            brick.set_si_unit_w(channelunit)
+            brick.get_si_unit_x().set_from_string(gridunit)
+            brick.get_si_unit_y().set_from_string(gridunit)
+            brick.get_si_unit_z().set_from_string('s')
+            brick.get_si_unit_w().set_from_string(shared_data['lcd-info.{}.unit.unit'.format(lcd_info)])
             
             for i in range(ilength):
                 gwy.gwy_app_wait_set_fraction(1.0*((segmentnumber*len(channels)+lcd_info)*ilength+i)/segmentcount/len(channels)/ilength)
