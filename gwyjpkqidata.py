@@ -1,7 +1,9 @@
 import ConfigParser
 import gwy
 import gwyutils
+import io
 import numpy
+import PIL.Image
 import StringIO
 import zipfile
 
@@ -53,6 +55,10 @@ def load(filename, mode=None):
     """
     >>> container = load(file_path)
     
+    Check if the channel has proper content
+    >>> container['/0/data'].get_val(0,0)
+    0.0
+
     Check if the brick has proper units and content
     >>> brick = container['/brick/0']
     >>> brick.get_si_unit_x().get_string(gwy.SI_UNIT_FORMAT_PLAIN)
@@ -92,6 +98,20 @@ def load(filename, mode=None):
     zip_file = zipfile.ZipFile(filename)
     container = gwy.Container()
     
+    data_image = PIL.Image.open(io.BytesIO(zip_file.read('data-image.jpk-qi-image')))
+    data_image.load()
+    try:
+        while True:
+            index = data_image.tell()
+            field = gwy.DataField(data_image.size[0], data_image.size[1], data_image.size[0], data_image.size[1], False)
+            array = gwyutils.data_field_data_as_array(field)
+            array[:] = numpy.array(data_image.getdata()).reshape(data_image.size)
+            container['/{}/data'.format(index)] = field
+            data_image.seek(index+1)
+            data_image.mode = 'I'
+    except EOFError:
+        pass
+
     def read_properties(path):
         config = ConfigParser.ConfigParser()
         config.optionxform = str
