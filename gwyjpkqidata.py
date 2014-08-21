@@ -86,7 +86,9 @@ def load(filename, mode=None):
     >>> container['/brick/1/meta']['force.name']
     'Force'
     """
-    gwy.gwy_app_wait_start(gwy.gwy_app_main_window_get(), plugin_desc)
+    main_window = gwy.gwy_app_main_window_get()
+    if main_window:
+        gwy.gwy_app_wait_start(main_window, plugin_desc)
     zip_file = zipfile.ZipFile(filename)
     container = gwy.Container()
     
@@ -127,7 +129,8 @@ def load(filename, mode=None):
             brick.get_si_unit_w().set_from_string(shared_data['lcd-info.{}.unit.unit'.format(lcd_info)])
             
             for i in range(ilength):
-                gwy.gwy_app_wait_set_fraction(1.0*((segmentnumber*len(channels)+lcd_info)*ilength+i)/segmentcount/len(channels)/ilength)
+                if main_window:
+                    gwy.gwy_app_wait_set_fraction(1.0*((segmentnumber*len(channels)+lcd_info)*ilength+i)/segmentcount/len(channels)/ilength)
                 for j in range(jlength):
                     index = i+(jlength-1-j)*ilength
                     channel = numpy.frombuffer(zip_file.read('index/{}/segments/{}/channels/{}.dat'.format(index, segmentnumber, channelname)),
@@ -151,8 +154,9 @@ def load(filename, mode=None):
                 if key.startswith(prefix):
                     meta.set_string_by_name(key[len(prefix):], shared_data[key])
             container["/brick/{}/meta".format(lcd_info)] = meta
-        
-    gwy.gwy_app_wait_finish()
+
+    if main_window:
+        gwy.gwy_app_wait_finish()
     return container
 
 if __name__ == "__main__":
