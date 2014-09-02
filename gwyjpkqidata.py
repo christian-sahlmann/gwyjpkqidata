@@ -159,7 +159,7 @@ def load(filename, mode=None):
                     length = len(channel)
                     channel.resize(num_points)
                     channel[length:] = float('nan')
-                    brickarray[i][j] = channel
+                    brickarray[i,j] = channel
                         
             bricknumber = lcd_info + len(channels)*segmentnumber
             container["/brick/{}".format(bricknumber)] = brick
