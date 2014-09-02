@@ -91,6 +91,8 @@ def load(filename, mode=None):
     'Distance'
     >>> container['/brick/1/meta']['force.name']
     'Force'
+    >>> container['/brick/2/meta']['distance.name']
+    'Distance'
     """
     main_window = gwy.gwy_app_main_window_get()
     if main_window:
@@ -173,7 +175,7 @@ def load(filename, mode=None):
                 prefix = 'lcd-info.{}.conversion-set.conversion.'.format(lcd_info)
                 if key.startswith(prefix):
                     meta.set_string_by_name(key[len(prefix):], shared_data[key])
-            container["/brick/{}/meta".format(lcd_info)] = meta
+            container["/brick/{}/meta".format(bricknumber)] = meta
 
     if main_window:
         gwy.gwy_app_wait_finish()
@@ -195,6 +197,8 @@ if __name__ == "__main__":
         type=quantitative-imaging-map
         quantitative-imaging-map.settings.force-settings.extend.duration=0
         quantitative-imaging-map.settings.force-settings.extend.num-points=2
+        quantitative-imaging-map.settings.force-settings.retract.duration=0
+        quantitative-imaging-map.settings.force-settings.retract.num-points=2
         quantitative-imaging-map.position-pattern.grid.ulength=1
         quantitative-imaging-map.position-pattern.grid.vlength=1
         quantitative-imaging-map.position-pattern.grid.unit.unit=m
@@ -202,8 +206,9 @@ if __name__ == "__main__":
         quantitative-imaging-map.position-pattern.grid.jlength=1
         '''))
     f.writestr('shared-data/header.properties', textwrap.dedent('''
-        force-segment-header-infos.count=1
+        force-segment-header-infos.count=2
         force-segment-header-info.0.settings.segment-settings.style=extend
+        force-segment-header-info.1.settings.segment-settings.style=retract
         lcd-info.0.unit.unit=V
         lcd-info.0.encoder.scaling.offset=1
         lcd-info.0.encoder.scaling.multiplier=2
@@ -219,8 +224,15 @@ if __name__ == "__main__":
         channel.vDeflection.lcd-info.*=0
         channel.height.lcd-info.*=1
         '''))
+    f.writestr('index/0/segments/1/segment-header.properties', textwrap.dedent('''
+        channels.list=vDeflection height
+        channel.vDeflection.lcd-info.*=0
+        channel.height.lcd-info.*=1
+        '''))
     f.writestr('index/0/segments/0/channels/vDeflection.dat', numpy.array([1], numpy.dtype('>i')).tostring())
     f.writestr('index/0/segments/0/channels/height.dat', numpy.array([1], numpy.dtype('>i')).tostring())
+    f.writestr('index/0/segments/1/channels/vDeflection.dat', numpy.array([1], numpy.dtype('>i')).tostring())
+    f.writestr('index/0/segments/1/channels/height.dat', numpy.array([1], numpy.dtype('>i')).tostring())
     data_image = io.BytesIO()
     PIL.Image.new('1', (1,1)).save(data_image, 'TIFF')
     f.writestr('data-image.jpk-qi-image', data_image.getvalue())
