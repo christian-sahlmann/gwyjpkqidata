@@ -46,7 +46,7 @@ def get_coefficients(meta, calibration_slot):
     except KeyError:
         return 1.0, 0.0
 
-def calibratejpkqidata(brick, meta, preview):
+def calibratejpkqidata(brick, meta, preview, conversions=None):
     """
     Initialize the test data
 
@@ -64,7 +64,7 @@ def calibratejpkqidata(brick, meta, preview):
     >>> preview = gwy.DataField(1,1,1,1,False)
     >>> preview.set_val(0,0,2)
 
-    Run the calibration
+    Run the calibration for all conversions
     >>> result = calibratejpkqidata(brick, meta, preview)
     >>> brick, preview = result['Distance']
 
@@ -79,14 +79,20 @@ def calibratejpkqidata(brick, meta, preview):
     The preview gets also calibrated according to multiplier and offset
     >>> preview.get_val(0,0)
     6.0
+
+    Run the calibration for one conversion
+    >>> result = calibratejpkqidata(brick, meta, preview, ['distance'])
+    >>> 'Distance' in result
+    True
     """
 
-    conversion_set = set()
-    for key in meta.keys_by_name():
-        conversion_set.add(key.split('.')[0])
+    if not conversions:
+        conversions = set()
+        for key in meta.keys_by_name():
+            conversions.add(key.split('.')[0])
 
     result = {}
-    for conversion in conversion_set:
+    for conversion in conversions:
         result_brick = brick.duplicate()
         result_preview = preview.duplicate()
 
