@@ -5,10 +5,16 @@ plugin_menu = "/Calibrate JPK quantitative imaging data"
 
 def run():
     brick_id = gwy.gwy_app_data_browser_get_current(gwy.APP_BRICK_ID)
-    result = calibratejpkqidata(brick_id)
-    for brick, preview, title in result:
-        id = gwy.gwy_app_data_browser_add_brick(brick, preview, gwy.data, True)
-        gwy.data["/brick/{}/title".format(id)] = title
+    brick   = gwy.data['/brick/{}'        .format(brick_id)]
+    meta    = gwy.data['/brick/{}/meta'   .format(brick_id)]
+    preview = gwy.data['/brick/{}/preview'.format(brick_id)]
+    title   = gwy.data['/brick/{}/title'  .format(brick_id)]
+
+    result = calibratejpkqidata(brick, meta, preview)
+
+    for name, (brick, preview) in result.items():
+        brick_id = gwy.gwy_app_data_browser_add_brick(brick, preview, gwy.data, True)
+        gwy.data["/brick/{}/title".format(brick_id)] = "{} {}".format(title, name)
 
 def get_coefficients(meta, calibration_slot):
     """
@@ -40,10 +46,9 @@ def get_coefficients(meta, calibration_slot):
     except KeyError:
         return 1.0, 0.0
 
-def calibratejpkqidata(brick_id):
+def calibratejpkqidata(brick, meta, preview):
     """
     Initialize the test data
-    >>> gwy.data = gwy.Container()
 
     >>> meta = gwy.Container()
     >>> meta['distance.scaling.unit.unit'] = 'm'
@@ -51,22 +56,17 @@ def calibratejpkqidata(brick_id):
     >>> meta['distance.scaling.multiplier'] = 2
     >>> meta['distance.scaling.offset'] = 1
     >>> meta['distance.name'] = 'Distance'
-    >>> gwy.data["/brick/0/meta"] = meta
 
     >>> brick = gwy.Brick(1,1,1,1,1,1,False)
     >>> brick.set_val(0,0,0,1)
     >>> brick.get_si_unit_w().set_from_string('V')
-    >>> gwy.data["/brick/0"] = brick
 
     >>> preview = gwy.DataField(1,1,1,1,False)
     >>> preview.set_val(0,0,2)
-    >>> gwy.data["/brick/0/preview"] = preview
-
-    >>> gwy.data["/brick/0/title"] = "extend vDeflection"
 
     Run the calibration
-    >>> result = calibratejpkqidata(0)
-    >>> brick, preview, title = result[0]
+    >>> result = calibratejpkqidata(brick, meta, preview)
+    >>> brick, preview = result['Distance']
 
     The values get calibrated according to multiplier and offset
     >>> brick.get_val(0,0,0)
@@ -79,40 +79,34 @@ def calibratejpkqidata(brick_id):
     The preview gets also calibrated according to multiplier and offset
     >>> preview.get_val(0,0)
     6.0
-
-    The title gets appended the calibration name
-    >>> title
-    'extend vDeflection Distance'
     """
-    brick_path = "/brick/{}".format(brick_id)
-    meta = gwy.data[brick_path + "/meta"]
 
     conversion_set = set()
     for key in meta.keys_by_name():
         conversion_set.add(key.split('.')[0])
 
-    result = []
+    result = {}
     for conversion in conversion_set:
-        brick = gwy.data[brick_path].duplicate()
-        preview = gwy.data[brick_path + "/preview"].duplicate()
-        title = "{} {}".format(gwy.data[brick_path + "/title"], meta[conversion + '.name'])
+        result_brick = brick.duplicate()
+        result_preview = preview.duplicate()
 
         try:
             unit = meta[conversion + '.scaling.unit.unit']
-            brick.get_si_unit_w().set_from_string(unit)
-            preview.get_si_unit_z().set_from_string(unit)
+            result_brick.get_si_unit_w().set_from_string(unit)
+            result_preview.get_si_unit_z().set_from_string(unit)
         except KeyError:
             pass
 
         multiplier, offset = get_coefficients(meta, conversion)
 
-        brick.add(offset)
-        preview.add(offset)
+        result_brick.add(offset)
+        result_preview.add(offset)
 
-        brick.multiply(multiplier)
-        preview.multiply(multiplier)
+        result_brick.multiply(multiplier)
+        result_preview.multiply(multiplier)
 
-        result.append((brick, preview, title))
+        name = meta[conversion + '.name']
+        result[name] = (result_brick, result_preview)
     return result
 
 if __name__ == "__main__":
