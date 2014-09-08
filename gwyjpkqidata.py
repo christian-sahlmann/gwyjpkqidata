@@ -183,9 +183,7 @@ def load(filename, mode=None):
 
 if __name__ == "__main__":
     import doctest
-    import io
     import os
-    import PIL.Image
     import tempfile
     import textwrap
     
