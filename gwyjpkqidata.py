@@ -11,7 +11,7 @@ plugin_desc = "JPK quantitative imaging data"
 class JpkQiData:
     """
     >>> jpkqidata = JpkQiData(file_path)
-    >>> brick = jpkqidata['extend', 'vDeflection']
+    >>> brick = jpkqidata.brick('extend', 'vDeflection')
 
     Check if the brick has proper content
     >>> brick[0, 0, 0]
@@ -36,7 +36,7 @@ class JpkQiData:
             segment_style = self.shared_data['force-segment-header-info.{}.settings.segment-settings.style'.format(segment_number)]
             self.segment_styles[segment_style] = segment_number
 
-    def __getitem__(self, (segment_style, channel_name)):
+    def brick(self, segment_style, channel_name, conversion=None):
         num_points = int(self.header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
 
         segment_number = self.segment_styles[segment_style]
@@ -55,13 +55,47 @@ class JpkQiData:
                                                numpy.dtype('>i'))
                 length = len(channel)
                 brick[i, j, 0:length] = channel*multiplier + offset
-        return brick
+
+        multiplier, offset = self.get_coefficients(lcd_info, conversion)
+        return (brick + offset)*multiplier
 
     def read_properties(self, path):
         config = ConfigParser.ConfigParser()
         config.optionxform = str
         config.readfp(StringIO.StringIO('[DEFAULT]\n'+self.zipfile.read(path).decode()))
         return config.defaults()
+
+    def get_coefficients(self, lcd_info, conversion):
+        """
+        When there are no coefficients, the data should not change when recalibrating
+        >>> jpkqidata = JpkQiData(file_path)
+        >>> jpkqidata.get_coefficients(0, 'volts')
+        (1.0, 0.0)
+
+        When coefficients are specified, return them
+        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.distance.base-calibration-slot'] = 'volts'
+        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.distance.scaling.multiplier'] = 2
+        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.distance.scaling.offset'] = 3
+        >>> jpkqidata.get_coefficients(0, 'distance')
+        (2.0, 3.0)
+
+        If the base calibration slot also has coefficients, calculate the resulting coefficients
+        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.force.base-calibration-slot'] = 'distance'
+        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.force.scaling.multiplier'] = 4
+        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.force.scaling.offset'] = 5
+        >>> jpkqidata.get_coefficients(0, 'force')
+        (8.0, 5.5)
+        """
+        prefix = 'lcd-info.{}.conversion-set.conversion.{}.'.format(lcd_info, conversion)
+        try:
+            base_calibration_slot = self.shared_data[prefix + 'base-calibration-slot']
+            multiplier = float(self.shared_data[prefix + 'scaling.multiplier'])
+            offset = float(self.shared_data[prefix + 'scaling.offset'])
+            base_multiplier, base_offset = self.get_coefficients(lcd_info, base_calibration_slot)
+            return base_multiplier * multiplier, base_offset + offset / base_multiplier
+        except KeyError:
+            return 1.0, 0.0
+
 
 def detect_by_name(filename):
     """
@@ -180,7 +214,7 @@ def load(filename, mode=None):
         for channelname in channels:
             lcd_info = int(segment_header['channel.{}.lcd-info.*'.format(channelname)])
             
-            brick_data = jpkqidata[segment_style, channelname]
+            brick_data = jpkqidata.brick(segment_style, channelname)
             ilength, jlength, num_points = brick_data.shape
             brick = gwy.Brick(ilength, jlength, num_points, ulength, vlength, duration, False)
             gwyutils.brick_set_data(brick, brick_data)
