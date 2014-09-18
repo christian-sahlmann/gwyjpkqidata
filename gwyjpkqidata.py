@@ -147,6 +147,7 @@ def load(filename, mode=None):
 
     Check if the brick has proper units and content
     >>> brick = container['/brick/0']
+    >>> import gwy
     >>> brick.get_si_unit_x().get_string(gwy.SI_UNIT_FORMAT_PLAIN)
     'm'
     >>> brick.get_si_unit_y().get_string(gwy.SI_UNIT_FORMAT_PLAIN)
@@ -247,7 +248,6 @@ def load(filename, mode=None):
 
 if __name__ == "__main__":
     import doctest
-    import gwy
     import os
     import tempfile
     import textwrap
