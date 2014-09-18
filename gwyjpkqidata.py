@@ -1,6 +1,4 @@
 import ConfigParser
-import gwy
-import gwyutils
 import io
 import numpy
 import PIL.Image
@@ -9,6 +7,61 @@ import zipfile
 
 plugin_type = "FILE"
 plugin_desc = "JPK quantitative imaging data"
+
+class JpkQiData:
+    """
+    >>> jpkqidata = JpkQiData(file_path)
+    >>> brick = jpkqidata['extend', 'vDeflection']
+
+    Check if the brick has proper content
+    >>> brick[0, 0, 0]
+    3.0
+
+    If the channel data is too short to fill the brick, it gets set to NaN
+    >>> brick[0, 0, 1]
+    nan
+    """
+    segment_styles = dict()
+
+    def __init__(self, filename):
+        self.zipfile = zipfile.ZipFile(filename)
+
+        self.header = self.read_properties('header.properties')
+        self.ilength = int(self.header['quantitative-imaging-map.position-pattern.grid.ilength'])
+        self.jlength = int(self.header['quantitative-imaging-map.position-pattern.grid.jlength'])
+
+        self.shared_data = self.read_properties('shared-data/header.properties')
+        segment_count = int(self.shared_data['force-segment-header-infos.count'])
+        for segment_number in range(segment_count):
+            segment_style = self.shared_data['force-segment-header-info.{}.settings.segment-settings.style'.format(segment_number)]
+            self.segment_styles[segment_style] = segment_number
+
+    def __getitem__(self, (segment_style, channel_name)):
+        num_points = int(self.header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
+
+        segment_number = self.segment_styles[segment_style]
+        segment_header = self.read_properties('index/0/segments/{}/segment-header.properties'.format(segment_number))
+
+        lcd_info = int(segment_header['channel.{}.lcd-info.*'.format(channel_name)])
+        offset     = float(self.shared_data['lcd-info.{}.encoder.scaling.offset'.format(lcd_info)])
+        multiplier = float(self.shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(lcd_info)])
+
+        brick = numpy.empty((self.ilength, self.jlength, num_points))
+        brick.fill(float('nan'))
+        for i in range(self.ilength):
+            for j in range(self.jlength):
+                index = i+(self.jlength-1-j)*self.ilength
+                channel = numpy.frombuffer(self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, segment_number, channel_name)),
+                                               numpy.dtype('>i'))
+                length = len(channel)
+                brick[i, j, 0:length] = channel*multiplier + offset
+        return brick
+
+    def read_properties(self, path):
+        config = ConfigParser.ConfigParser()
+        config.optionxform = str
+        config.readfp(StringIO.StringIO('[DEFAULT]\n'+self.zipfile.read(path).decode()))
+        return config.defaults()
 
 def detect_by_name(filename):
     """
@@ -45,8 +98,7 @@ def detect_by_content(filename, head, tail, filesize):
     0
     """
     try:
-        zip_file = zipfile.ZipFile(filename)
-        zip_file.open('header.properties')
+        JpkQiData(filename)
         return 100
     except:
         return 0
@@ -94,13 +146,14 @@ def load(filename, mode=None):
     >>> container['/brick/2/meta']['distance.name']
     'Distance'
     """
+    import gwy, gwyutils
     main_window = gwy.gwy_app_main_window_get()
     if main_window:
         gwy.gwy_app_wait_start(main_window, plugin_desc)
-    zip_file = zipfile.ZipFile(filename)
+    jpkqidata = JpkQiData(filename)
     container = gwy.Container()
     
-    data_image = PIL.Image.open(io.BytesIO(zip_file.read('data-image.jpk-qi-image')))
+    data_image = PIL.Image.open(io.BytesIO(jpkqidata.zipfile.read('data-image.jpk-qi-image')))
     data_image.load()
     try:
         while True:
@@ -113,56 +166,30 @@ def load(filename, mode=None):
             data_image.mode = 'I'
     except EOFError:
         pass
-
-    def read_properties(path):
-        config = ConfigParser.ConfigParser()
-        config.optionxform = str
-        config.readfp(StringIO.StringIO('[DEFAULT]\n'+zip_file.read(path).decode()))
-        return config.defaults()
         
-    header = read_properties('header.properties')
-    shared_data = read_properties('shared-data/header.properties')
+    ulength = float(jpkqidata.header['quantitative-imaging-map.position-pattern.grid.ulength'])
+    vlength = float(jpkqidata.header['quantitative-imaging-map.position-pattern.grid.vlength'])
+    gridunit = jpkqidata.header['quantitative-imaging-map.position-pattern.grid.unit.unit']
     
-    ilength =   int(header['quantitative-imaging-map.position-pattern.grid.ilength'])
-    jlength =   int(header['quantitative-imaging-map.position-pattern.grid.jlength'])
-    ulength = float(header['quantitative-imaging-map.position-pattern.grid.ulength'])
-    vlength = float(header['quantitative-imaging-map.position-pattern.grid.vlength'])
-    gridunit = header['quantitative-imaging-map.position-pattern.grid.unit.unit']
-    
-    segmentcount = int(shared_data['force-segment-header-infos.count'])
-    for segmentnumber in range(segmentcount):
-        segment_header = read_properties('index/0/segments/{}/segment-header.properties'.format(segmentnumber))
-        segment_style = shared_data['force-segment-header-info.{}.settings.segment-settings.style'.format(segmentnumber)]
-        duration = float(header['quantitative-imaging-map.settings.force-settings.{}.duration'.format(segment_style)])
-        num_points = int(header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
+    for segment_progress, (segment_style, segmentnumber) in enumerate(jpkqidata.segment_styles.iteritems()):
+        duration = float(jpkqidata.header['quantitative-imaging-map.settings.force-settings.{}.duration'.format(segment_style)])
+        num_points = int(jpkqidata.header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
         
+        segment_header = jpkqidata.read_properties('index/0/segments/{}/segment-header.properties'.format(segmentnumber))
         channels = segment_header['channels.list'].split(' ')
         for channelname in channels:
             lcd_info = int(segment_header['channel.{}.lcd-info.*'.format(channelname)])
-            offset     = float(shared_data['lcd-info.{}.encoder.scaling.offset'.format(lcd_info)])
-            multiplier = float(shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(lcd_info)])
             
+            brick_data = jpkqidata[segment_style, channelname]
+            ilength, jlength, num_points = brick_data.shape
             brick = gwy.Brick(ilength, jlength, num_points, ulength, vlength, duration, False)
-            brickarray = gwyutils.brick_data_as_array(brick)
+            gwyutils.brick_set_data(brick, brick_data)
             
             brick.get_si_unit_x().set_from_string(gridunit)
             brick.get_si_unit_y().set_from_string(gridunit)
             brick.get_si_unit_z().set_from_string('s')
-            brick.get_si_unit_w().set_from_string(shared_data['lcd-info.{}.unit.unit'.format(lcd_info)])
+            brick.get_si_unit_w().set_from_string(jpkqidata.shared_data['lcd-info.{}.unit.unit'.format(lcd_info)])
             
-            for i in range(ilength):
-                if main_window:
-                    gwy.gwy_app_wait_set_fraction(1.0*((segmentnumber*len(channels)+lcd_info)*ilength+i)/segmentcount/len(channels)/ilength)
-                for j in range(jlength):
-                    index = i+(jlength-1-j)*ilength
-                    channel = numpy.frombuffer(zip_file.read('index/{}/segments/{}/channels/{}.dat'.format(index, segmentnumber, channelname)),
-                                               numpy.dtype('>i'))
-                    channel = channel*multiplier + offset
-                    length = len(channel)
-                    channel.resize(num_points)
-                    channel[length:] = float('nan')
-                    brickarray[i,j] = channel
-                        
             bricknumber = lcd_info + len(channels)*segmentnumber
             container["/brick/{}".format(bricknumber)] = brick
             preview = gwy.DataField(ilength, jlength, ilength, jlength, False)
@@ -171,11 +198,14 @@ def load(filename, mode=None):
             container["/brick/{}/title".format(bricknumber)] = "{} {}".format(segment_style, channelname)
         
             meta = gwy.Container()
-            for key in shared_data:
+            for key in jpkqidata.shared_data:
                 prefix = 'lcd-info.{}.conversion-set.conversion.'.format(lcd_info)
                 if key.startswith(prefix):
-                    meta.set_string_by_name(key[len(prefix):], shared_data[key])
+                    meta.set_string_by_name(key[len(prefix):], jpkqidata.shared_data[key])
             container["/brick/{}/meta".format(bricknumber)] = meta
+
+            if main_window:
+                gwy.gwy_app_wait_set_fraction(1.0 * (segment_progress*len(channels) + lcd_info) / len(jpkqidata.segment_styles) / len(channels))
 
     if main_window:
         gwy.gwy_app_wait_finish()
@@ -183,6 +213,7 @@ def load(filename, mode=None):
 
 if __name__ == "__main__":
     import doctest
+    import gwy
     import os
     import tempfile
     import textwrap
@@ -235,10 +266,6 @@ if __name__ == "__main__":
     PIL.Image.new('1', (1,1)).save(data_image, 'TIFF')
     f.writestr('data-image.jpk-qi-image', data_image.getvalue())
     f.close()
-    
-    gwy.gwy_app_wait_start        = lambda x,y: None
-    gwy.gwy_app_wait_set_fraction = lambda x: None
-    gwy.gwy_app_wait_finish       = lambda: None
     
     # run tests
     doctest.testmod()
