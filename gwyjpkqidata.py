@@ -82,17 +82,26 @@ class JpkQiData:
     segment_styles = dict()
 
     def __init__(self, filename):
+        """
+        >>> jpkqidata = JpkQiData(file_path)
+        >>> jpkqidata.segment_styles
+        {u'retract': 1, u'extend': 0}
+        """
         self.zipfile = zipfile.ZipFile(filename)
 
         self.header = self.read_properties('header.properties')
         self.ilength = int(self.header['quantitative-imaging-map.position-pattern.grid.ilength'])
         self.jlength = int(self.header['quantitative-imaging-map.position-pattern.grid.jlength'])
+        self.ulength = float(self.header['quantitative-imaging-map.position-pattern.grid.ulength'])
+        self.vlength = float(self.header['quantitative-imaging-map.position-pattern.grid.vlength'])
+        self.grid_unit = self.header['quantitative-imaging-map.position-pattern.grid.unit.unit']
 
         self.shared_data = self.read_properties('shared-data/header.properties')
         segment_count = int(self.shared_data['force-segment-header-infos.count'])
         for segment_number in range(segment_count):
             segment_style = self.shared_data['force-segment-header-info.{}.settings.segment-settings.style'.format(segment_number)]
-            self.segment_styles[segment_style] = segment_number
+            if segment_style not in self.segment_styles:
+                self.segment_styles[segment_style] = segment_number
 
     def segment(self, segment_style):
         segment = Segment()
@@ -100,6 +109,7 @@ class JpkQiData:
         segment.ilength = self.ilength
         segment.jlength = self.jlength
         segment.num_points = int(self.header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
+        segment.duration = float(self.header['quantitative-imaging-map.settings.force-settings.{}.duration'.format(segment_style)])
         segment.number = self.segment_styles[segment_style]
         segment.header = self.read_properties('index/0/segments/{}/segment-header.properties'.format(segment.number))
         segment.shared_data = self.shared_data
@@ -216,27 +226,22 @@ def load(filename, mode=None):
             data_image.mode = 'I'
     except EOFError:
         pass
-        
-    ulength = float(jpkqidata.header['quantitative-imaging-map.position-pattern.grid.ulength'])
-    vlength = float(jpkqidata.header['quantitative-imaging-map.position-pattern.grid.vlength'])
-    gridunit = jpkqidata.header['quantitative-imaging-map.position-pattern.grid.unit.unit']
     
     for segment_progress, (segment_style, segmentnumber) in enumerate(jpkqidata.segment_styles.iteritems()):
-        duration = float(jpkqidata.header['quantitative-imaging-map.settings.force-settings.{}.duration'.format(segment_style)])
-        num_points = int(jpkqidata.header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
         
         segment_header = jpkqidata.read_properties('index/0/segments/{}/segment-header.properties'.format(segmentnumber))
         channels = segment_header['channels.list'].split(' ')
         for channelname in channels:
             lcd_info = int(segment_header['channel.{}.lcd-info.*'.format(channelname)])
             
-            brick_data = jpkqidata.segment(segment_style).channel(channelname)
+            segment = jpkqidata.segment(segment_style)
+            brick_data = segment.channel(channelname)
             ilength, jlength, num_points = brick_data.shape
-            brick = gwy.Brick(ilength, jlength, num_points, ulength, vlength, duration, False)
+            brick = gwy.Brick(ilength, jlength, num_points, jpkqidata.ulength, jpkqidata.vlength, segment.duration, False)
             gwyutils.brick_set_data(brick, brick_data)
             
-            brick.get_si_unit_x().set_from_string(gridunit)
-            brick.get_si_unit_y().set_from_string(gridunit)
+            brick.get_si_unit_x().set_from_string(jpkqidata.grid_unit)
+            brick.get_si_unit_y().set_from_string(jpkqidata.grid_unit)
             brick.get_si_unit_z().set_from_string('s')
             brick.get_si_unit_w().set_from_string(jpkqidata.shared_data['lcd-info.{}.unit.unit'.format(lcd_info)])
             
@@ -284,9 +289,10 @@ if __name__ == "__main__":
         quantitative-imaging-map.position-pattern.grid.jlength=1
         '''))
     f.writestr('shared-data/header.properties', textwrap.dedent('''
-        force-segment-header-infos.count=2
+        force-segment-header-infos.count=3
         force-segment-header-info.0.settings.segment-settings.style=extend
         force-segment-header-info.1.settings.segment-settings.style=retract
+        force-segment-header-info.2.settings.segment-settings.style=extend
         lcd-info.0.unit.unit=V
         lcd-info.0.encoder.scaling.offset=1
         lcd-info.0.encoder.scaling.multiplier=2
@@ -307,10 +313,17 @@ if __name__ == "__main__":
         channel.vDeflection.lcd-info.*=0
         channel.height.lcd-info.*=1
         '''))
+    f.writestr('index/0/segments/2/segment-header.properties', textwrap.dedent('''
+        channels.list=vDeflection height
+        channel.vDeflection.lcd-info.*=0
+        channel.height.lcd-info.*=1
+        '''))
     f.writestr('index/0/segments/0/channels/vDeflection.dat', numpy.array([1], numpy.dtype('>i')).tostring())
     f.writestr('index/0/segments/0/channels/height.dat', numpy.array([1], numpy.dtype('>i')).tostring())
     f.writestr('index/0/segments/1/channels/vDeflection.dat', numpy.array([1], numpy.dtype('>i')).tostring())
     f.writestr('index/0/segments/1/channels/height.dat', numpy.array([1], numpy.dtype('>i')).tostring())
+    f.writestr('index/0/segments/2/channels/vDeflection.dat', numpy.array([1], numpy.dtype('>i')).tostring())
+    f.writestr('index/0/segments/2/channels/height.dat', numpy.array([1], numpy.dtype('>i')).tostring())
     data_image = io.BytesIO()
     PIL.Image.new('1', (1,1)).save(data_image, 'TIFF')
     f.writestr('data-image.jpk-qi-image', data_image.getvalue())
