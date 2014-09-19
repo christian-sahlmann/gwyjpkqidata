@@ -8,17 +8,75 @@ import zipfile
 plugin_type = "FILE"
 plugin_desc = "JPK quantitative imaging data"
 
+class Channel(numpy.ndarray):
+    def get_coefficients(self, lcd_info, conversion):
+        """
+        When there are no coefficients, the data should not change when recalibrating
+        >>> channel = Channel(1)
+        >>> channel.shared_data = dict()
+        >>> channel.get_coefficients(0, 'volts')
+        (1.0, 0.0)
+
+        When coefficients are specified, return them
+        >>> channel.shared_data['lcd-info.0.conversion-set.conversion.distance.base-calibration-slot'] = 'volts'
+        >>> channel.shared_data['lcd-info.0.conversion-set.conversion.distance.scaling.multiplier'] = 2
+        >>> channel.shared_data['lcd-info.0.conversion-set.conversion.distance.scaling.offset'] = 3
+        >>> channel.get_coefficients(0, 'distance')
+        (2.0, 3.0)
+
+        If the base calibration slot also has coefficients, calculate the resulting coefficients
+        >>> channel.shared_data['lcd-info.0.conversion-set.conversion.force.base-calibration-slot'] = 'distance'
+        >>> channel.shared_data['lcd-info.0.conversion-set.conversion.force.scaling.multiplier'] = 4
+        >>> channel.shared_data['lcd-info.0.conversion-set.conversion.force.scaling.offset'] = 5
+        >>> channel.get_coefficients(0, 'force')
+        (8.0, 5.5)
+        """
+        prefix = 'lcd-info.{}.conversion-set.conversion.{}.'.format(lcd_info, conversion)
+        try:
+            base_calibration_slot = self.shared_data[prefix + 'base-calibration-slot']
+            multiplier = float(self.shared_data[prefix + 'scaling.multiplier'])
+            offset = float(self.shared_data[prefix + 'scaling.offset'])
+            base_multiplier, base_offset = self.get_coefficients(lcd_info, base_calibration_slot)
+            return base_multiplier * multiplier, base_offset + offset / base_multiplier
+        except KeyError:
+            return 1.0, 0.0
+
+    def calibrate(self, conversion):
+        multiplier, offset = self.get_coefficients(self.lcd_info, conversion)
+        return (self + offset) * multiplier
+
+class Segment:
+    def channel(self, name):
+        channel = numpy.empty((self.ilength, self.jlength, self.num_points)).view(Channel)
+        channel.fill(float('nan'))
+
+        channel.shared_data = self.shared_data
+        channel.lcd_info = int(self.header['channel.{}.lcd-info.*'.format(name)])
+        offset     = float(self.shared_data['lcd-info.{}.encoder.scaling.offset'.format(channel.lcd_info)])
+        multiplier = float(self.shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(channel.lcd_info)])
+
+        for i in range(self.ilength):
+            for j in range(self.jlength):
+                index = i+(self.jlength-1-j)*self.ilength
+                channel_data = numpy.frombuffer(self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, self.number, name)),
+                                                numpy.dtype('>i'))
+                length = len(channel_data)
+                channel[i, j, :length] = channel_data*multiplier + offset
+
+        return channel
+
+
 class JpkQiData:
     """
     >>> jpkqidata = JpkQiData(file_path)
-    >>> brick = jpkqidata.brick('extend', 'vDeflection')
+    >>> channel = jpkqidata.segment('extend').channel('vDeflection')
 
-    Check if the brick has proper content
-    >>> brick[0, 0, 0]
+    Check if the channel has proper content
+    >>> channel[0, 0, 0]
     3.0
 
-    If the channel data is too short to fill the brick, it gets set to NaN
-    >>> brick[0, 0, 1]
+    If the channel data is too short to fill the channel, it gets set to NaN
+    >>> channel[0, 0, 1]
     nan
     """
     segment_styles = dict()
@@ -36,65 +94,22 @@ class JpkQiData:
             segment_style = self.shared_data['force-segment-header-info.{}.settings.segment-settings.style'.format(segment_number)]
             self.segment_styles[segment_style] = segment_number
 
-    def brick(self, segment_style, channel_name, conversion=None):
-        num_points = int(self.header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
-
-        segment_number = self.segment_styles[segment_style]
-        segment_header = self.read_properties('index/0/segments/{}/segment-header.properties'.format(segment_number))
-
-        lcd_info = int(segment_header['channel.{}.lcd-info.*'.format(channel_name)])
-        offset     = float(self.shared_data['lcd-info.{}.encoder.scaling.offset'.format(lcd_info)])
-        multiplier = float(self.shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(lcd_info)])
-
-        brick = numpy.empty((self.ilength, self.jlength, num_points))
-        brick.fill(float('nan'))
-        for i in range(self.ilength):
-            for j in range(self.jlength):
-                index = i+(self.jlength-1-j)*self.ilength
-                channel = numpy.frombuffer(self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, segment_number, channel_name)),
-                                               numpy.dtype('>i'))
-                length = len(channel)
-                brick[i, j, 0:length] = channel*multiplier + offset
-
-        multiplier, offset = self.get_coefficients(lcd_info, conversion)
-        return (brick + offset)*multiplier
+    def segment(self, segment_style):
+        segment = Segment()
+        segment.zipfile = self.zipfile
+        segment.ilength = self.ilength
+        segment.jlength = self.jlength
+        segment.num_points = int(self.header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
+        segment.number = self.segment_styles[segment_style]
+        segment.header = self.read_properties('index/0/segments/{}/segment-header.properties'.format(segment.number))
+        segment.shared_data = self.shared_data
+        return segment
 
     def read_properties(self, path):
         config = ConfigParser.ConfigParser()
         config.optionxform = str
         config.readfp(StringIO.StringIO('[DEFAULT]\n'+self.zipfile.read(path).decode()))
         return config.defaults()
-
-    def get_coefficients(self, lcd_info, conversion):
-        """
-        When there are no coefficients, the data should not change when recalibrating
-        >>> jpkqidata = JpkQiData(file_path)
-        >>> jpkqidata.get_coefficients(0, 'volts')
-        (1.0, 0.0)
-
-        When coefficients are specified, return them
-        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.distance.base-calibration-slot'] = 'volts'
-        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.distance.scaling.multiplier'] = 2
-        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.distance.scaling.offset'] = 3
-        >>> jpkqidata.get_coefficients(0, 'distance')
-        (2.0, 3.0)
-
-        If the base calibration slot also has coefficients, calculate the resulting coefficients
-        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.force.base-calibration-slot'] = 'distance'
-        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.force.scaling.multiplier'] = 4
-        >>> jpkqidata.shared_data['lcd-info.0.conversion-set.conversion.force.scaling.offset'] = 5
-        >>> jpkqidata.get_coefficients(0, 'force')
-        (8.0, 5.5)
-        """
-        prefix = 'lcd-info.{}.conversion-set.conversion.{}.'.format(lcd_info, conversion)
-        try:
-            base_calibration_slot = self.shared_data[prefix + 'base-calibration-slot']
-            multiplier = float(self.shared_data[prefix + 'scaling.multiplier'])
-            offset = float(self.shared_data[prefix + 'scaling.offset'])
-            base_multiplier, base_offset = self.get_coefficients(lcd_info, base_calibration_slot)
-            return base_multiplier * multiplier, base_offset + offset / base_multiplier
-        except KeyError:
-            return 1.0, 0.0
 
 
 def detect_by_name(filename):
@@ -215,7 +230,7 @@ def load(filename, mode=None):
         for channelname in channels:
             lcd_info = int(segment_header['channel.{}.lcd-info.*'.format(channelname)])
             
-            brick_data = jpkqidata.brick(segment_style, channelname)
+            brick_data = jpkqidata.segment(segment_style).channel(channelname)
             ilength, jlength, num_points = brick_data.shape
             brick = gwy.Brick(ilength, jlength, num_points, ulength, vlength, duration, False)
             gwyutils.brick_set_data(brick, brick_data)
