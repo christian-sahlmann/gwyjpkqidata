@@ -1,8 +1,8 @@
-import ConfigParser
+from six.moves import configparser
 import io
 import numpy
 import PIL.Image
-import StringIO
+from six.moves import StringIO
 import zipfile
 
 plugin_type = "FILE"
@@ -84,8 +84,11 @@ class JpkQiData:
     def __init__(self, filename):
         """
         >>> jpkqidata = JpkQiData(file_path)
-        >>> jpkqidata.segment_styles
-        {u'retract': 1, u'extend': 0}
+        >>> segment_styles = jpkqidata.segment_styles
+        >>> segment_styles['extend']
+        0
+        >>> segment_styles['retract']
+        1
         """
         self.zipfile = zipfile.ZipFile(filename)
 
@@ -116,9 +119,9 @@ class JpkQiData:
         return segment
 
     def read_properties(self, path):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.optionxform = str
-        config.readfp(StringIO.StringIO('[DEFAULT]\n'+self.zipfile.read(path).decode()))
+        config.readfp(StringIO('[DEFAULT]\n'+self.zipfile.read(path).decode()))
         return config.defaults()
 
 
