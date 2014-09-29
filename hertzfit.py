@@ -78,7 +78,15 @@ def interactive(nominal_height, force):
         ax1.imshow(E)
         ax3.imshow(cp)
         def on_click(event):
-            print(event)
+            if event.inaxes in [ax0,ax1,ax3]:
+                point = event.ydata, event.xdata
+                xdata = nominal_height[point]
+                ydata = force[point]
+                ax2.plot(xdata, subtract_baseline(xdata, ydata))
+                ax2.plot(xdata, hertz(xdata, cp[point], E[point]))
+            else:
+                ax2.clear()
+            plt.draw()
         fig.canvas.mpl_connect('button_press_event', on_click)
         plt.show()
     ax = plt.axes([0.8, 0.025, 0.1, 0.04])
