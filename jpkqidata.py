@@ -56,7 +56,7 @@ class Segment:
         multiplier = float(self.shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(channel.lcd_info)])
 
         for i, j in numpy.ndindex(self.ilength, self.jlength):
-            index = i+(self.jlength-1-j)*self.ilength
+            index = j+(self.ilength-1-i)*self.jlength
             channel_data = numpy.frombuffer(self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, self.number, name)),
                                             numpy.dtype('>i'))
             length = len(channel_data)
