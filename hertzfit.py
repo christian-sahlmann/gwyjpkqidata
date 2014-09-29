@@ -4,6 +4,7 @@ site.addsitedir(os.path.expanduser('~/.gwyddion/pygwy'))
 from jpkqidata import JpkQiData
 import matplotlib
 import matplotlib.pyplot as plt
+import multiprocessing
 import numpy as np
 import sys
 import scipy.optimize
@@ -12,24 +13,19 @@ matplotlib.rcParams['axes.formatter.limits'] = [-4, 4]
 matplotlib.rcParams['image.cmap'] = 'afmhot'
 
 def hertzfit(filename):
-    def get_data(x, y):
-        xdata = nominal_height[x, y]
-        ydata = force[x, y]
-        ydata = subtract_baseline(xdata, ydata)
-        return xdata, ydata
-
     def on_click(event):
         if event.inaxes == ax0:
             global point
             point = (event.xdata / jpkqidata.ulength * force.shape[0],
                      event.ydata / jpkqidata.vlength * force.shape[1])
-            xdata, ydata = get_data(*point)
-            ax1.plot(xdata, ydata)
+            xdata = nominal_height[point]
+            ydata = force[point]
+            ax1.plot(xdata, subtract_baseline(xdata, ydata))
 
             popt, _ = fit(xdata, ydata)
             ax1.plot(xdata, hertz(xdata, *popt))
 
-            fit_region_start = find_fit_region_start(ydata)
+            fit_region_start = find_fit_region_start(subtract_baseline(xdata, ydata))
             cp = []
             E = []
             Eerr = []
@@ -54,11 +50,12 @@ def hertzfit(filename):
 
         elif event.inaxes == ax2:
             indentation_depth = event.xdata
-            xdata, ydata = get_data(*point)
+            xdata = nominal_height[point]
+            ydata = force[point]
             popt, perr = fit(xdata, ydata, indentation_depth)
-            fit_start = find_fit_region_start(ydata)
+            fit_start = find_fit_region_start(subtract_baseline(xdata, ydata))
             ax1.clear()
-            ax1.plot(xdata, ydata)
+            ax1.plot(xdata, subtract_baseline(xdata, ydata))
             ax1.plot(xdata[fit_start:fit_start+indentation_depth], hertz(xdata[fit_start:fit_start+indentation_depth], *popt))
 
         elif not event.inaxes:
@@ -83,14 +80,7 @@ def hertzfit(filename):
     fig.canvas.mpl_connect('button_press_event', on_click)
     plt.show()
 
-    cp = np.empty(force.shape[:2])
-    E = np.empty(cp.shape)
-    for index in np.ndindex(E.shape):
-        data = get_data(*index)
-        popt, _ = fit(*data, depth=600)
-        cp[index] = popt[0]
-        E[index] = popt[1]
-
+    cp, E = fit_all(nominal_height, force)
     fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
     ax0.imshow(np.nanmin(nominal_height, 2))
     ax1.imshow(E)
@@ -114,6 +104,7 @@ def find_fit_region_start(data):
     return fit_region_start
 
 def fit(xdata, ydata, depth=None, setpoint=None):
+    ydata = subtract_baseline(xdata, ydata)
     fit_region_start = find_fit_region_start(ydata)
     approximate_cp = xdata[fit_region_start]
 
@@ -141,6 +132,24 @@ def subtract_baseline(xdata, ydata):
                                            xdata[:len(xdata)*.4],
                                            ydata[:len(xdata)*.4])
     return ydata - line(xdata, *baseline)
+
+def fit_index(index, xdata, ydata):
+    return index, fit(xdata, ydata)
+
+def fit_all(nominal_height, force):
+    cp = np.empty(force.shape[:2])
+    E = np.empty(cp.shape)
+    def fit_callback((index, (popt, perr))):
+        cp[index] = popt[0]
+        E[index] = popt[1]
+
+    pool = multiprocessing.Pool()
+    for index in np.ndindex(E.shape):
+        pool.apply_async(fit_index, (index, nominal_height[index], force[index]), callback=fit_callback)
+
+    pool.close()
+    pool.join()
+    return cp, E
 
 if __name__ == "__main__":
     hertzfit(sys.argv[1])
