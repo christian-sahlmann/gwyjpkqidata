@@ -16,8 +16,7 @@ def interactive(nominal_height, force):
     def on_click(event):
         if event.inaxes == ax0:
             global point
-            point = (event.xdata / jpkqidata.ulength * force.shape[0],
-                     event.ydata / jpkqidata.vlength * force.shape[1])
+            point = event.ydata, event.xdata
             xdata = nominal_height[point]
             ydata = force[point]
             ax1.plot(xdata, subtract_baseline(xdata, ydata))
@@ -65,21 +64,26 @@ def interactive(nominal_height, force):
         plt.draw()
 
     fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
-    ax0.imshow(np.nanmin(nominal_height, 2).T, extent=[0, jpkqidata.ulength, jpkqidata.vlength, 0])
-    ax0.xaxis.set_label_text('x / '+jpkqidata.grid_unit)
-    ax0.yaxis.set_label_text('y / '+jpkqidata.grid_unit)
+    ax0.imshow(np.nanmin(nominal_height, 2))
 
     ax1.xaxis.set_label_text('Nominal height / m')
     ax1.yaxis.set_label_text('Force / N')
 
     fig.canvas.mpl_connect('button_press_event', on_click)
-    plt.show()
 
-    cp, E = fit_all(nominal_height, force)
-    fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
-    ax0.imshow(np.nanmin(nominal_height, 2))
-    ax1.imshow(E)
-    ax3.imshow(cp)
+    def fit_all_clicked(event):
+        cp, E = fit_all(nominal_height, force)
+        fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
+        ax0.imshow(np.nanmin(nominal_height, 2))
+        ax1.imshow(E)
+        ax3.imshow(cp)
+        def on_click(event):
+            print(event)
+        fig.canvas.mpl_connect('button_press_event', on_click)
+        plt.show()
+    ax = plt.axes([0.8, 0.025, 0.1, 0.04])
+    button = matplotlib.widgets.Button(ax, 'Fit all')
+    button.on_clicked(fit_all_clicked)
     plt.show()
 
 def hertz(x, xc, E, Rc=1e-6, nu=.5):
