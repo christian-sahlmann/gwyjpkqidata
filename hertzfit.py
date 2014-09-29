@@ -17,7 +17,9 @@ def hertzfit(filename):
     def on_click(event):
         if event.inaxes == ax0:
             global point
-            point = event.xdata, event.ydata
+            point = (event.xdata / jpkqidata.ulength * force.shape[0],
+                     event.ydata / jpkqidata.vlength * force.shape[1])
+            print(point)
             xdata, ydata = get_data(*point)
             ax1.plot(xdata, ydata)
 
@@ -62,7 +64,9 @@ def hertzfit(filename):
     force = jpkqidata.segment('extend').channel('vDeflection').calibrate('force')
 
     fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
-    ax0.imshow(np.nanmin(nominal_height, 2).T, plt.cm.afmhot)
+    ax0.imshow(np.nanmin(nominal_height, 2).T, plt.cm.afmhot, extent=[0, jpkqidata.ulength, jpkqidata.vlength, 0])
+    ax0.xaxis.set_label_text('x / '+jpkqidata.grid_unit)
+    ax0.yaxis.set_label_text('y / '+jpkqidata.grid_unit)
 
     fig.canvas.mpl_connect('button_press_event', on_click)
     plt.show()
