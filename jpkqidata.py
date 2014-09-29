@@ -57,10 +57,14 @@ class Segment:
 
         for i, j in numpy.ndindex(self.ilength, self.jlength):
             index = j+(self.ilength-1-i)*self.jlength
-            channel_data = numpy.frombuffer(self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, self.number, name)),
-                                            numpy.dtype('>i'))
-            length = len(channel_data)
-            channel[i, j, :length] = channel_data*multiplier + offset
+            try:
+                channel_file = self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, self.number, name))
+                channel_data = numpy.frombuffer(channel_file,
+                                                numpy.dtype('>i'))
+                length = len(channel_data)
+                channel[i, j, :length] = channel_data*multiplier + offset
+            except KeyError:
+                pass
 
         return channel
 
