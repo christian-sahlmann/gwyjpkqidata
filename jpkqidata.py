@@ -55,13 +55,12 @@ class Segment:
         offset     = float(self.shared_data['lcd-info.{}.encoder.scaling.offset'.format(channel.lcd_info)])
         multiplier = float(self.shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(channel.lcd_info)])
 
-        for i in range(self.ilength):
-            for j in range(self.jlength):
-                index = i+(self.jlength-1-j)*self.ilength
-                channel_data = numpy.frombuffer(self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, self.number, name)),
-                                                numpy.dtype('>i'))
-                length = len(channel_data)
-                channel[i, j, :length] = channel_data*multiplier + offset
+        for i, j in numpy.ndindex(self.ilength, self.jlength):
+            index = i+(self.jlength-1-j)*self.ilength
+            channel_data = numpy.frombuffer(self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, self.number, name)),
+                                            numpy.dtype('>i'))
+            length = len(channel_data)
+            channel[i, j, :length] = channel_data*multiplier + offset
 
         return channel
 
