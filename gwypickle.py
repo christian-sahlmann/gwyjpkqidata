@@ -1,7 +1,10 @@
 import copy_reg
 import gwy
-import gwyutils
 import pickle
+import site
+
+site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
+import gwyutils
 
 plugin_type = "FILE"
 plugin_desc = "Pickle"

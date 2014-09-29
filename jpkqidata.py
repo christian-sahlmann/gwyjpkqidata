@@ -206,7 +206,9 @@ def load(filename, mode=None):
     >>> container['/brick/2/meta']['distance.name']
     'Distance'
     """
-    import gwy, gwyutils
+    import gwy, site
+    site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
+    import gwyutils
     main_window = gwy.gwy_app_main_window_get()
     if main_window:
         gwy.gwy_app_wait_start(main_window, plugin_desc)
