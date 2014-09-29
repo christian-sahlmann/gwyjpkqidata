@@ -2,10 +2,14 @@ import site, os
 site.addsitedir(os.path.expanduser('~/.gwyddion/pygwy'))
 
 from jpkqidata import JpkQiData
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import scipy.optimize
+
+matplotlib.rcParams['axes.formatter.limits'] = [-4, 4]
+matplotlib.rcParams['image.cmap'] = 'afmhot'
 
 def hertzfit(filename):
     def get_data(x, y):
@@ -19,7 +23,6 @@ def hertzfit(filename):
             global point
             point = (event.xdata / jpkqidata.ulength * force.shape[0],
                      event.ydata / jpkqidata.vlength * force.shape[1])
-            print(point)
             xdata, ydata = get_data(*point)
             ax1.plot(xdata, ydata)
 
@@ -38,8 +41,14 @@ def hertzfit(filename):
                 if i % 50 == 0:
                     ax2.clear()
                     ax2.plot(E)
+                    ax2.xaxis.set_label_text('Indentation depth')
+                    ax2.yaxis.set_label_text('Young modulus')
+
                     ax3.clear()
                     ax3.plot(Eerr)
+                    ax3.xaxis.set_label_text('Indentation depth')
+                    ax3.yaxis.set_label_text('Young modulus standard error')
+
                     plt.draw()
                     plt.pause(0.01)
 
@@ -64,26 +73,28 @@ def hertzfit(filename):
     force = jpkqidata.segment('extend').channel('vDeflection').calibrate('force')
 
     fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
-    ax0.imshow(np.nanmin(nominal_height, 2).T, plt.cm.afmhot, extent=[0, jpkqidata.ulength, jpkqidata.vlength, 0])
+    ax0.imshow(np.nanmin(nominal_height, 2).T, extent=[0, jpkqidata.ulength, jpkqidata.vlength, 0])
     ax0.xaxis.set_label_text('x / '+jpkqidata.grid_unit)
     ax0.yaxis.set_label_text('y / '+jpkqidata.grid_unit)
+
+    ax1.xaxis.set_label_text('Nominal height / m')
+    ax1.yaxis.set_label_text('Force / N')
 
     fig.canvas.mpl_connect('button_press_event', on_click)
     plt.show()
 
-    cp = np.empty((64, 64))
-    E = np.empty((64, 64))
-    for i in range(64):
-        for j in range(64):
-            data = get_data(i,j)
-            popt, perr = fit(*data, depth=600)
-            cp[i,j] = popt[0]
-            E[i,j] = popt[1]
+    cp = np.empty(force.shape[:2])
+    E = np.empty(cp.shape)
+    for index in np.ndindex(E.shape):
+        data = get_data(*index)
+        popt, _ = fit(*data, depth=600)
+        cp[index] = popt[0]
+        E[index] = popt[1]
 
     fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
-    ax0.imshow(np.nanmin(nominal_height, 2), plt.cm.afmhot)
-    ax1.imshow(E, plt.cm.afmhot)
-    ax3.imshow(cp, plt.cm.afmhot)
+    ax0.imshow(np.nanmin(nominal_height, 2))
+    ax1.imshow(E)
+    ax3.imshow(cp)
     plt.show()
 
 def hertz(x, xc, E, Rc=1e-6, nu=.5):
