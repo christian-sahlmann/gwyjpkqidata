@@ -12,7 +12,7 @@ import scipy.optimize
 matplotlib.rcParams['axes.formatter.limits'] = [-4, 4]
 matplotlib.rcParams['image.cmap'] = 'afmhot'
 
-def hertzfit(filename):
+def interactive(nominal_height, force):
     def on_click(event):
         if event.inaxes == ax0:
             global point
@@ -63,11 +63,6 @@ def hertzfit(filename):
             ax2.clear()
 
         plt.draw()
-
-    jpkqidata = JpkQiData(filename)
-
-    nominal_height = jpkqidata.segment('extend').channel('capacitiveSensorHeight').calibrate('nominal')
-    force = jpkqidata.segment('extend').channel('vDeflection').calibrate('force')
 
     fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
     ax0.imshow(np.nanmin(nominal_height, 2).T, extent=[0, jpkqidata.ulength, jpkqidata.vlength, 0])
@@ -152,4 +147,9 @@ def fit_all(nominal_height, force):
     return cp, E
 
 if __name__ == "__main__":
-    hertzfit(sys.argv[1])
+    jpkqidata = JpkQiData(sys.argv[1])
+    extend = jpkqidata.segment('extend')
+    nominal_height = extend.channel('capacitiveSensorHeight').calibrate('nominal')
+    force = extend.channel('vDeflection').calibrate('force')
+
+    interactive(nominal_height, force)
