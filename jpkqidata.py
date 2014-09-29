@@ -68,6 +68,8 @@ class Segment:
 
         return channel
 
+class JpkQiDataException(Exception):
+    pass
 
 class JpkQiData:
     """
@@ -93,21 +95,24 @@ class JpkQiData:
         >>> segment_styles['retract']
         1
         """
-        self.zipfile = zipfile.ZipFile(filename)
+        try:
+            self.zipfile = zipfile.ZipFile(filename)
 
-        self.header = self.read_properties('header.properties')
-        self.ilength = int(self.header['quantitative-imaging-map.position-pattern.grid.ilength'])
-        self.jlength = int(self.header['quantitative-imaging-map.position-pattern.grid.jlength'])
-        self.ulength = float(self.header['quantitative-imaging-map.position-pattern.grid.ulength'])
-        self.vlength = float(self.header['quantitative-imaging-map.position-pattern.grid.vlength'])
-        self.grid_unit = self.header['quantitative-imaging-map.position-pattern.grid.unit.unit']
+            self.header = self.read_properties('header.properties')
+            self.ilength = int(self.header['quantitative-imaging-map.position-pattern.grid.ilength'])
+            self.jlength = int(self.header['quantitative-imaging-map.position-pattern.grid.jlength'])
+            self.ulength = float(self.header['quantitative-imaging-map.position-pattern.grid.ulength'])
+            self.vlength = float(self.header['quantitative-imaging-map.position-pattern.grid.vlength'])
+            self.grid_unit = self.header['quantitative-imaging-map.position-pattern.grid.unit.unit']
 
-        self.shared_data = self.read_properties('shared-data/header.properties')
-        segment_count = int(self.shared_data['force-segment-header-infos.count'])
-        for segment_number in range(segment_count):
-            segment_style = self.shared_data['force-segment-header-info.{}.settings.segment-settings.style'.format(segment_number)]
-            if segment_style not in self.segment_styles:
-                self.segment_styles[segment_style] = segment_number
+            self.shared_data = self.read_properties('shared-data/header.properties')
+            segment_count = int(self.shared_data['force-segment-header-infos.count'])
+            for segment_number in range(segment_count):
+                segment_style = self.shared_data['force-segment-header-info.{}.settings.segment-settings.style'.format(segment_number)]
+                if segment_style not in self.segment_styles:
+                    self.segment_styles[segment_style] = segment_number
+        except (zipfile.BadZipfile, KeyError):
+            raise JpkQiDataException
 
     def segment(self, segment_style):
         segment = Segment()
