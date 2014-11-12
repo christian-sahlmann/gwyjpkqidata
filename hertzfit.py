@@ -64,7 +64,8 @@ def interactive(nominal_height, force):
         plt.draw()
 
     fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
-    ax0.imshow(np.nanmin(nominal_height, 2))
+    im = ax0.imshow(np.nanmin(nominal_height, 2))
+    fig.colorbar(im, ax=ax0)
 
     ax1.xaxis.set_label_text('Nominal height / m')
     ax1.yaxis.set_label_text('Force / N')
@@ -74,9 +75,12 @@ def interactive(nominal_height, force):
     def fit_all_clicked(event):
         cp, E = fit_all(nominal_height, force)
         fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
-        ax0.imshow(np.nanmin(nominal_height, 2))
-        ax1.imshow(E)
-        ax3.imshow(cp)
+        im0 = ax0.imshow(np.nanmin(nominal_height, 2))
+        im1 = ax1.imshow(E)
+        im3 = ax3.imshow(cp)
+        fig.colorbar(im0, ax=ax0)
+        fig.colorbar(im1, ax=ax1)
+        fig.colorbar(im3, ax=ax3)
         def on_click(event):
             if event.inaxes in [ax0,ax1,ax3]:
                 point = event.ydata, event.xdata
