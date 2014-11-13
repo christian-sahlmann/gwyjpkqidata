@@ -73,23 +73,27 @@ def interactive(nominal_height, force):
     fig.canvas.mpl_connect('button_press_event', on_click)
 
     def fit_all_clicked(event):
-        cp, E = fit_all(nominal_height, force)
-        fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
+        cp, cperr, E, Eerr = fit_all(nominal_height, force)
+        fig, ((ax0, ax1), (ax3, ax5), (ax2, ax4)) = plt.subplots(3, 2)
         im0 = ax0.imshow(np.nanmin(nominal_height, 2))
-        im1 = ax1.imshow(E)
+        im2 = ax2.imshow(E)
         im3 = ax3.imshow(cp)
+        im4 = ax4.imshow(Eerr)
+        im5 = ax5.imshow(cperr)
         fig.colorbar(im0, ax=ax0)
-        fig.colorbar(im1, ax=ax1)
+        fig.colorbar(im2, ax=ax2)
         fig.colorbar(im3, ax=ax3)
+        fig.colorbar(im4, ax=ax4)
+        fig.colorbar(im5, ax=ax5)
         def on_click(event):
-            if event.inaxes in [ax0,ax1,ax3]:
+            if event.inaxes in [ax0,ax2,ax3,ax4,ax5]:
                 point = event.ydata, event.xdata
                 xdata = nominal_height[point]
                 ydata = force[point]
-                ax2.plot(xdata, subtract_baseline(xdata, ydata))
-                ax2.plot(xdata, hertz(xdata, cp[point], E[point]))
+                ax1.plot(xdata, subtract_baseline(xdata, ydata))
+                ax1.plot(xdata, hertz(xdata, cp[point], E[point]))
             else:
-                ax2.clear()
+                ax1.clear()
             plt.draw()
         fig.canvas.mpl_connect('button_press_event', on_click)
         plt.show()
@@ -149,10 +153,14 @@ def fit_index(index, xdata, ydata):
 
 def fit_all(nominal_height, force):
     cp = np.empty(force.shape[:2])
-    E = np.empty(cp.shape)
+    cperr = np.empty(force.shape[:2])
+    E = np.empty(force.shape[:2])
+    Eerr = np.empty(force.shape[:2])
     def fit_callback((index, (popt, perr))):
         cp[index] = popt[0]
+        cperr[index] = perr[0]
         E[index] = popt[1]
+        Eerr[index] = perr[1]
 
     pool = multiprocessing.Pool()
     for index in np.ndindex(E.shape):
@@ -160,7 +168,8 @@ def fit_all(nominal_height, force):
 
     pool.close()
     pool.join()
-    return cp, E
+
+    return cp, cperr, E, Eerr
 
 if __name__ == "__main__":
     jpkqidata = JpkQiData(sys.argv[1])
