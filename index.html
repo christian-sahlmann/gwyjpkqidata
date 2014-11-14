@@ -1,0 +1,1544 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="GENERATOR" content="LyX 2.1.2.1" />
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+<title>Bestimmung der Steifigkeit von Zellen aus Kraft-Distanz-Kurven</title>
+
+<!-- Preamble Snippets -->
+\AtBeginDocument{\providecommand\figref[1]{\ref{fig:#1}}}
+\AtBeginDocument{\providecommand\chapref[1]{\ref{chap:#1}}}
+
+<style type='text/css'>
+/* LyX Provided Styles */
+div.bibtexentry { margin-left: 2em; text-indent: -2em; }
+span.bibtexlabel:before{ content: "["; }
+span.bibtexlabel:after{ content: "] "; }
+
+/* Layout-provided Styles */
+h1.title {
+font-family: sans-serif;
+font-weight: bold;
+font-size: x-large;
+margin-bottom: 1ex;
+text-align: center;
+
+}
+div.author {
+font-size: x-large;
+margin-top: 1.3ex;
+margin-bottom: 0.7ex;
+text-align: center;
+
+}
+div.subject {
+font-size: x-large;
+margin-top: 1.3ex;
+margin-bottom: 0.7ex;
+text-align: center;
+
+}
+div.publishers {
+font-size: x-large;
+margin-top: 1.3ex;
+margin-bottom: 0.7ex;
+text-align: center;
+
+}
+div.standard {
+text-indent: 2em;
+margin-bottom: 2ex;
+}
+h1.chapter {
+font-family: sans-serif;
+font-weight: bold;
+font-size: x-large;
+margin-top: 4ex;
+margin-bottom: 0.8ex;
+text-align: left;
+
+}
+h1.part {
+font-family: sans-serif;
+font-weight: bold;
+font-size: xx-large;
+margin-top: 4ex;
+margin-bottom: 4ex;
+text-align: center;
+
+}
+h2.section {
+font-family: sans-serif;
+font-weight: bold;
+font-size: x-large;
+margin-top: 1.3ex;
+margin-bottom: 0.7ex;
+text-align: left;
+
+}
+div.plain_layout {
+text-align: left;
+
+}
+h3.subsection {
+font-family: sans-serif;
+font-weight: bold;
+font-size: large;
+margin-top: 0.9ex;
+margin-bottom: 0.5ex;
+text-align: left;
+
+}
+ul.itemize {
+margin-top: 0.7ex;
+margin-bottom: 0.7ex;
+margin-left: 3ex;
+text-align: left;
+
+}
+ div.toc {
+   margin: 2em 0em;
+   border-style: solid;
+   border-width: 2px 0px;
+   padding: 1em 0em;
+ }
+ h2.tochead { font-size: x-large; font-weight: bold; }
+ div.lyxtoc-0 {
+   margin: 2em 0em 0em 0em;
+   font-size: xx-large;
+   font-weight: bold;
+ }
+ div.lyxtoc-1 {
+   margin: 1em 0em 0em 0em;
+   font-size: x-large;
+   font-weight: bold;
+ }
+ div.lyxtoc-2 {
+   margin: 0em 0.1em 0em 1em;
+   font-size: large;
+   font-weight: normal;
+ }
+ div.lyxtoc-3 { margin: 0em 0.1em 0em 0.5em; font-size: medium; }
+ div.lyxtoc-4 { margin: 0em 0.1em 0em 0.5em; }
+ div.lyxtoc-5 { margin: 0em 0.1em 0em 0.5em; }
+ div.lyxtoc-6 { margin: 0em 0.1em 0em 0.5em; }
+ a.tocentry {
+   text-decoration: none;
+   color: black;
+ }
+ a.tocentry:visited { color: black; }
+ a.lyxtoc-floats { 
+   text-decoration: none; 
+   color: black;
+ }
+ a.lyxtoc-floats:visited { color: black; }
+ div.lyxtoc-floats { 
+   margin: 0em 0em 0.1em 1em;
+   font-size: large;
+   font-weight: normal;
+ }
+div.float {
+border: 2px solid black;
+text-align: center;
+}
+div.float-caption {
+text-align: center;
+border: 2px solid black;
+padding: 1ex;
+margin: 1ex;
+}
+pre.listings {
+font-family: monospace;
+}
+
+
+</style>
+</head>
+<body>
+<h1 class="title"><a id='magicparlabel-1' />Bestimmung der Steifigkeit von Zellen aus Kraft-Distanz-Kurven</h1>
+<div class="author"><a id='magicparlabel-2' />Christian Bühler
+<br />
+
+<a href="christian.buehler@uni-ulm.de">christian.buehler@uni-ulm.de</a></div>
+<div class="subject"><a id='magicparlabel-3' />Bachelorarbeit</div>
+<div class="publishers"><a id='magicparlabel-4' />Gutachter: Prof. Dr. Kay Gottschalk
+<br />
+
+Betreuer: Dipl.-Phys. Patrick Paul
+<br />
+
+Universität Ulm</div>
+
+<div class='toc'><h2 class='tochead chapter'>Inhaltsverzeichnis</h2>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-7' class='tocentry'>1 Einleitung</a>
+</div>
+</div>
+
+<div class='lyxtoc-0'><a href='#magicparlabel-13' class='tocentry'>Teil I Grundlagen</a>
+
+
+<div class='lyxtoc-1'><a href='#magicparlabel-14' class='tocentry'>2 Zellen</a>
+
+
+<div class='lyxtoc-2'><a href='#magicparlabel-18' class='tocentry'>2.1 Aufbau</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-31' class='tocentry'>2.2 Zellskelett</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-47' class='tocentry'>2.3 Organellen</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-54' class='tocentry'>2.4 Integrine</a>
+</div>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-67' class='tocentry'>3 Rasterkraftmikroskop</a>
+
+
+<div class='lyxtoc-2'><a href='#magicparlabel-69' class='tocentry'>3.1 Aufbau</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-96' class='tocentry'>3.2 Modi</a>
+
+
+<div class='lyxtoc-3'><a href='#magicparlabel-98' class='tocentry'>3.2.1 Contact Mode</a>
+</div>
+
+<div class='lyxtoc-3'><a href='#magicparlabel-102' class='tocentry'>3.2.2 Non-Contact Mode</a>
+</div>
+
+<div class='lyxtoc-3'><a href='#magicparlabel-105' class='tocentry'>3.2.3 Intermittent Contact Mode</a>
+</div>
+
+<div class='lyxtoc-3'><a href='#magicparlabel-108' class='tocentry'>3.2.4 Force Volume Mode</a>
+</div>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-123' class='tocentry'>3.3 Kraft-Distanz-Kurven</a>
+</div>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-139' class='tocentry'>4 Hertz-Modell</a>
+</div>
+</div>
+
+<div class='lyxtoc-0'><a href='#magicparlabel-163' class='tocentry'>Teil II Methoden und Materialien</a>
+
+
+<div class='lyxtoc-1'><a href='#magicparlabel-164' class='tocentry'>5 Zellen</a>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-169' class='tocentry'>6 Scherkräfte</a>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-196' class='tocentry'>7 Extraktion</a>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-213' class='tocentry'>8 Rasterkraftmikroskop</a>
+
+
+<div class='lyxtoc-2'><a href='#magicparlabel-216' class='tocentry'>8.1 Messvorbereitung</a>
+</div>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-222' class='tocentry'>9 Software</a>
+</div>
+</div>
+
+<div class='lyxtoc-0'><a href='#magicparlabel-228' class='tocentry'>Teil III Ergebnisse</a>
+
+
+<div class='lyxtoc-1'><a href='#magicparlabel-229' class='tocentry'>10 Anpassungen an Gwyddion</a>
+
+
+<div class='lyxtoc-2'><a href='#magicparlabel-230' class='tocentry'>10.1 Dateigrößen</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-237' class='tocentry'>10.2 Volume data modules</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-242' class='tocentry'>10.3 Direkter Speicherzugriff</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-247' class='tocentry'>10.4 Kopieren von Force-Volume-Daten</a>
+</div>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-250' class='tocentry'>11 Laden der Messdaten</a>
+
+
+<div class='lyxtoc-2'><a href='#magicparlabel-254' class='tocentry'>11.1 Metadaten</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-260' class='tocentry'>11.2 Kanäle</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-263' class='tocentry'>11.3 Implementierung</a>
+</div>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-268' class='tocentry'>12 Kalibrierung</a>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-273' class='tocentry'>13 Verwendung ohne Gwyddion</a>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-293' class='tocentry'>14 Berechnung der Steifigkeit</a>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-346' class='tocentry'>15 Graphische Oberfläche</a>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-381' class='tocentry'>16 Diskussion der Auswertung</a>
+
+
+<div class='lyxtoc-2'><a href='#magicparlabel-382' class='tocentry'>16.1 Physikalische Interpretation</a>
+</div>
+
+<div class='lyxtoc-2'><a href='#magicparlabel-390' class='tocentry'>16.2 Vergleich mit Herstellerprogramm</a>
+</div>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-421' class='tocentry'>17 Fazit</a>
+</div>
+
+<div class='lyxtoc-1'><a href='#magicparlabel-427' class='tocentry'>18 Danksagung</a>
+</div>
+</div>
+
+
+
+<div class='toc toc-floats'><h2 class='tochead toc-figure right_address'>List of Figures</h2><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-29' class='lyxtoc-floats'>Abbildung 2.1:Aufbau einer eukaryotischen Zelle: 1. Nucleolus, 2. Zellkern, 3. Ribosomen, 4. Vesikel, 5. Raues Endoplasmatsiches Reticulum, 6. Golgi-Apparat, 7. Mikrotubuli, 8. Glattes Endoplasmatisches Reticulum, 9. Mitochondrien, 10. Lysosom, 11. Zytoplasma, 12. Mikrobodies, 13. Zentriolen. Abbildung: MesserWoland / CC-BY-SA 3.0</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-42' class='lyxtoc-floats'>Abbildung 2.2:Zellen mit eingefärbtem Zellskelett. Die Zellkerne sind blau, die Mikrotubuli grün und die Aktinfilamente rot eingefärbt. [#ImageJ]</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-65' class='lyxtoc-floats'>Abbildung 2.3:Verbindung einer Zelle mit der Extrazellulären Matrix über Integrine [#freeman2005biological]</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-80' class='lyxtoc-floats'>Abbildung 3.1:Elektronenmikroskop-Aufnahme eines Cantilevers mit 1000-facher Vergrößerung. An den Abnutzungserscheinungen an der Spitze lässt sich erkennen, dass dieser bereits verwendet wurde. Foto: SecretDisc / CC BY-SA 3.0</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-94' class='lyxtoc-floats'>Abbildung 3.2:Schematischer Aufbau eines Rasterkraftmikroskops. Foto: Cepheiden / Gemeinfrei</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-121' class='lyxtoc-floats'>Abbildung 3.3:Schematische Ansicht der Online-Analyse von Kraft-Distanz-Kurven[#qimode].</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-137' class='lyxtoc-floats'>Abbildung 3.4:Graphische Konstruktion einer Kraft-Distanz-Kurve. Oben: Spitze-Probe-Interaktion, modelliert durch ein Lennard-Jones-Potential und Kraftkurven des Cantilevers. Unten: resultierende Kraft-Distanz-Kurve. [#cappella1999force]</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-183' class='lyxtoc-floats'>Abbildung 6.1:ibidi Pumpensystem bestehend aus Flüssigkeitseinheit, Pumpe und Steuerungsrechner. Foto: ibidi</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-194' class='lyxtoc-floats'>Abbildung 6.2:Flusskammer, in der die Scherkräfte mittels laminarem Fluss auf die Zellen ausgeübt werden. Foto: ibidi</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-211' class='lyxtoc-floats'>Abbildung 7.1:Messergebnis einer unvollständig extrahierten Zelle</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-371' class='lyxtoc-floats'>Abbildung 15.1:Graphische Oberfläche zur Analyse einer einzelnen Messung. Die Achseneinheiten links oben sind Pixel, links unten Newton über Meter, rechts jeweils Pascal über Anzahl Messpunkte. Die Farbskalaeinheiten sind Meter.</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-380' class='lyxtoc-floats'>Abbildung 15.2:Ergebnis von „Fit all“. Links oben: minimale Höhe des Cantilevers über der Zelle. Rechts oben: Kraft-Distanz-Kurven der ausgewählten Punkte. Zweite Zeile: Kontaktpunkte und entsprechender Standardfehler. Letzte Zeile: Elastizitätsmodul und entsprechender Standardfehler. Die Achseneinheiten sind rechts oben Newton über Meter, bei den anderen Graphen jeweils Pixel. Die Farbskalaeinheiten sind in der zweiten Zeile Meter und in der letzten Zeile Pascal.</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-407' class='lyxtoc-floats'>Abbildung 16.1:Kontaktpunkte, ausgewertet mit JPK DataProcessing und dargestellt mit Matplotlib. Die Achseneinheiten sind Pixel, die Farbskalaeinheiten sind Meter.</a></div><div class='lyxtoc-floats lyxtoc-figure'><a href='#magicparlabel-418' class='lyxtoc-floats'>Abbildung 16.2:Elastizitätsmodul, ausgewertet mit JPK DataProcessing und dargestellt mit Matplotlib. Die Achseneinheiten sind Pixel, die Farbskalaeinheiten sind Pascal.</a></div></div>
+<h1 class="chapter"><a id='magicparlabel-7' /><span class="chapter_label">1</span> Einleitung</h1>
+<div class="standard"><a id='magicparlabel-8' />Obwohl wir heutzutage ein enormes Wissen über das Leben auf unserem Planeten besitzen, sind viele Detailfragen noch immer ungeklärt. Durch Fortschritte in Technik, Methoden und Rechenleistung stehen inzwischen aber neue Möglichkeiten bereit, dies weiter zu erforschen. Ein fundiertes und detailliertes Verständnis der in Lebewesen ablaufenden Prozesse ist beispielsweise wichtig, um neue Medikamente und Behandlungsmethoden zu entwickeln.</div>
+
+<div class="standard"><a id='magicparlabel-9' />Das Institut für Experimentelle Physik der Universität Ulm ist in genau diesem Feld tätig. Hier werden mittels physikalischen Methoden die mechanischen Eigenschaften von Zellen untersucht, um somit Erkenntnisse über den Einfluss einzelner Zellbestandteile zu gewinnen.</div>
+
+<div class="standard"><a id='magicparlabel-10' />Insbesondere wird aktuell der Einfluss von Integrinen auf die Steifigkeit des Zellskeletts untersucht.[<a href='#LyXCite-schiller2013beta1'><span class="bib-label">23</span></a>] Diese Arbeit soll einen Beitrag dazu leisten, diese Forschung voranzutreiben, welcher aus zwei Komponenten besteht.</div>
+
+<div class="standard"><a id='magicparlabel-11' />Zum einen wurden Zellen mit unterschiedlichen Integrinen mit einem Rasterkraftmikroskop mechanisch vermessen. Diese Messdaten können zusammen mit den Daten aus anderen Arbeiten kombiniert und mit statistischen Methoden untersucht werden, um Aussagen über den Einfluss der verschiedenen Integrine bei unterschiedlichen Bedingungen zu treffen.</div>
+
+<div class="standard"><a id='magicparlabel-12' />Der größte Teil dieser Arbeit beschäftigt sich jedoch mit der Auswertung der Messdaten. Um aussagekräftige Ergebnisse zu erhalten, muss eine große Anzahl an Zellen vermessen und ausgewertet werden. Daher wurde im Rahmen dieser Arbeit ein Python-Programm entwickelt, das Unterstützung bei dieser Aufgabe bieten soll. Damit ist es möglich, die Steifigkeit von Zellen schnell und reproduzierbar aus den Messdaten auszuwerten.</div>
+<h1 class="part"><a id='magicparlabel-13' /><span class="part_label">Teil I</span> Grundlagen</h1>
+<h1 class="chapter"><a id='magicparlabel-14' /><span class="chapter_label">2</span> Zellen</h1>
+<div class="standard"><a id='magicparlabel-15' />Das Leben auf der Erde besteht aus einer enormen Vielfalt an verschiedensten Arten von Lebewesen. Diese haben alle dieselbe Eigenschaft, dass sie aus einer oder mehreren kleinsten lebenden Einheiten, den Zellen aufgebaut sind. Die Lebewesen werden dann entsprechend als Einzeller bzw. Vielzeller bezeichnet.[<a href='#LyXCite-alberts1983molecular'><span class="bib-label">1</span></a>]</div>
+
+<div class="standard"><a id='magicparlabel-16' />Eine Zelle zeichnet sich dadurch aus, dass sie sich durch Teilung vermehren kann, einen eigenen Stoffwechsel durchführt, Wachstum und Entwicklung durchläuft und auch absterben kann.</div>
+
+<div class="standard"><a id='magicparlabel-17' />Lebewesen werden grob in Eukaryoten und Prokaryoten unterteilt. Letztere bestehen wiederum aus den Bakterien und den Archaeen. Die Eukaryoten unterscheiden sich von den Prokaryoten dadurch, dass ihre Zellen einen Zellkern besitzen, welcher durch eine Doppelmembran vom Zytoplasma abgegrenzt wird. Er enthält die Erbinformation in Form von DNA, welche in Chromosomen aufgeteilt ist. Bei Prokaryoten befindet sich die DNA dagegen frei im Zytoplasma, meist in Form eines einzelnen DNA-Moleküls. Sowohl Tiere, Pflanzen als auch Pilze gehören zu den Eukaryoten. Prokaryoten werden also daher in dieser Arbeit nicht näher betrachtet.</div>
+<h2 class="section"><a id='magicparlabel-18' /><span class="section_label">2.1</span> Aufbau</h2>
+<div class="standard"><a id='magicparlabel-19' />Eine Zelle wird von ihrer Umgebung durch eine Membran abgegrenzt. Sie besteht aus einer Doppellipidschicht. Diese Membran wird als Zellmembran bezeichnet. In der Zellmembran befinden sich auch verschiedene Proteine, welche unter anderem den Austausch von Ionen oder Molekülen mit der Umgebung ermöglichen. Der Bereich im Zellinneren wird als Zytoplasma bezeichnet. In diesem befinden sich zahlreiche Zellbestandteile (siehe <a href="#fig_Biological_cell">2.1</a>).</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-24' /><img style='width:100%;' src='0_home_cbuehler_Dokumente_Bachelorarbeit_wikimedia_Biological_cell.png' alt='image: 0_home_cbuehler_Dokumente_Bachelorarbeit_wikimedia_Biological_cell.png' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-25' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 2.1:<div class="plain_layout"><a id='magicparlabel-29' /><a id="fig_Biological_cell" />
+Aufbau einer eukaryotischen Zelle: 1. Nucleolus, 2. Zellkern, 3. Ribosomen, 4. Vesikel, 5. Raues Endoplasmatsiches Reticulum, 6. Golgi-Apparat, 7. Mikrotubuli, 8. Glattes Endoplasmatisches Reticulum, 9. Mitochondrien, 10. Lysosom, 11. Zytoplasma, 12. Mikrobodies, 13. Zentriolen. Abbildung: MesserWoland / CC-BY-SA 3.0</div>
+</div></div>
+
+
+</div>
+
+<h2 class="section"><a id='magicparlabel-31' /><span class="section_label">2.2</span> Zellskelett</h2>
+<div class="standard"><a id='magicparlabel-32' />Für die mechanischen Eigenschaften wie Stabilität, Elastizität und äußere Form ist das Zellskelett, auch Zytoskelett genannt, verantwortlich. Es setzt sich aus den Mikrofilamenten, den Mikrotubuli und den Intermediärfilamenten zusammen (<a href="#fig_FluorescentCells">2.2</a>). Neben den mechanischen Eigenschaften ist es auch für die Weiterleitung von äußeren Reizen wie beispielsweise Druck zuständig.</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-37' /><img style='width:100%;' src='1_home_cbuehler_Dokumente_Bachelorarbeit_wikimedia_FluorescentCells.jpg' alt='image: 1_home_cbuehler_Dokumente_Bachelorarbeit_wikimedia_FluorescentCells.jpg' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-38' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 2.2:<div class="plain_layout"><a id='magicparlabel-42' /><a id="fig_FluorescentCells" />
+Zellen mit eingefärbtem Zellskelett. Die Zellkerne sind blau, die Mikrotubuli grün und die Aktinfilamente rot eingefärbt. [<a href='#LyXCite-ImageJ'><span class="bib-label">22</span></a>]</div>
+</div></div>
+
+
+</div>
+
+
+<div class="standard"><a id='magicparlabel-44' />Die Mikrotubuli bestehen aus dem Protein Tubulin und sind Hohlzylinder mit einem Durchmesser von etwa 25 nm. Sie sind vor allem für die Befestigung der Organellen zuständig. Sie leisten allerdings nur einen kleinen Beitrag zur mechanischen Stabilisierung der Zelle. Außerdem sind sie mitverantwortlich für den intrazellulären Transport.</div>
+
+<div class="standard"><a id='magicparlabel-45' />Etwas stärker wird die äußere Form durch die Mikrofilamente beeinflusst. Dies sind Fasern aus Aktin mit etwa 7 nm Durchmesser. Sie sind für die Adhäsion der Zelle an ihrer Umgebung, die Zellmigration und die Formgebung der Zelle zuständig.</div>
+
+<div class="standard"><a id='magicparlabel-46' />Für die Aufnahme von Zugkräften sind vor allem die Intermediärfilamente zuständig. Dabei handelt es sich um einen Überbegriff für verschiedene Proteinfasern mit ähnlichen Eigenschaften. Sie haben einen Durchmesser von um die 10 nm. Sie sind deutlich stabiler als Mikrotubuli und Mikrofilamente und bilden daher das Stützgerüst der Zelle.</div>
+<h2 class="section"><a id='magicparlabel-47' /><span class="section_label">2.3</span> Organellen</h2>
+<div class="standard"><a id='magicparlabel-48' />Im Inneren der Zelle, also im Zytoplasma, befindet sich eine Reihe von Bestandteilen, welche analog zu den Organen von Mehrzellern wie beispielsweise Lunge oder Herz als Organellen bezeichnet werden.</div>
+
+<div class="standard"><a id='magicparlabel-49' />Zu ihnen gehört beispielsweise auch der Zellkern, welcher für die Eukaryoten bezeichnend ist. In ihm befindet sich die DNA als Chromosomen organisiert. Diese sind nur während der Zellteilung unter dem Lichtmikroskop sichtbar. Ansonsten liegen sie in einem dekondensierten Zustand vor, sind aber auch in diesem Zustand einzeln nachweisbare Einheiten. Der Zellkern ist durch eine Doppelmembran vom restlichen Zytoplasma abgetrennt. In ihm findet auch die RNA-Synthese statt.</div>
+
+<div class="standard"><a id='magicparlabel-50' />Sehr wichtig für den Stoffwechsel der Zelle sind die Mitochondrien. Auch sie sind, wie der Zellkern, nur in Eukaryoten vorhanden. In ihnen werden unter anderem organische Stoffe mit Sauerstoff oxidiert. Die dabei freiwerdende Energie wird zur Synthese von Adenosintriphosphat (ATP) aus Adenonsindiphosphat (ADP) verwendet, welches als Energieträger für zahlreiche Prozesse im Lebewesen dient.</div>
+
+<div class="standard"><a id='magicparlabel-51' />Das endoplasmatische Retikulum und der Golgi-Apparat sind für vor allem für den Transport und Modifikation von Proteinen zuständig.</div>
+
+<div class="standard"><a id='magicparlabel-52' />Ribosomen setzen die Informationen, welche in Form einer mRNA gespeichert sind, in die entsprechenden Proteine um. Hierfür setzen sie die Aminosäuren in der als mRNA codierten Reihenfolge zusammen.</div>
+
+<div class="standard"><a id='magicparlabel-53' />Neben diesen wichtigsten Organellen existieren noch weitere, welche beispielsweise für die Zersetzung von Molekülen, Transport, Photosynthese bei Pflanzen uvm. zuständig sind.</div>
+<h2 class="section"><a id='magicparlabel-54' /><span class="section_label">2.4</span> Integrine</h2>
+<div class="standard"><a id='magicparlabel-55' />Bei Integrinen handelt es sich um Proteine, welche sich in der Zellmembran befinden. Sie dienen der Verbindung mit anderen Zellen und der extrazellulären Matrix (<a href="#fig_integrin">2.3</a>). Desweiteren dienen sie zur Übertragung von Signalen von anderen Zellen oder der Umgebung. Sie bestehen aus zwei Untereinheiten, welche mit <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &alpha; </mi>
+ </mrow></math> und <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &beta; </mi>
+ </mrow></math> bezeichnet werden. Bei Säugetieren sind 18 verschiedene <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &alpha; </mi>
+ </mrow></math>- und 8 verschiedene <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &beta; </mi>
+ </mrow></math>-Untereinheiten bekannt, welche sich zu etwa 24 verschiedenen Integrinen kombinieren.</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-60' /><img style='width:100%;' src='2_home_cbuehler_Dokumente_Bachelorarbeit_uic_integrin.jpg' alt='image: 2_home_cbuehler_Dokumente_Bachelorarbeit_uic_integrin.jpg' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-61' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 2.3:<div class="plain_layout"><a id='magicparlabel-65' /><a id="fig_integrin" />
+Verbindung einer Zelle mit der Extrazellulären Matrix über Integrine [<a href='#LyXCite-freeman2005biological'><span class="bib-label">8</span></a>]</div>
+</div></div>
+
+
+</div>
+
+<h1 class="chapter"><a id='magicparlabel-67' /><span class="chapter_label">3</span> Rasterkraftmikroskop</h1>
+<div class="standard"><a id='magicparlabel-68' />Das Rasterkraftmikroskop (atomic force microscope, AFM) wurde 1986 von G. Binnig, C. F. Quate und Ch. Gerber entwickelt[<a href='#LyXCite-PhysRevLett_56_930'><span class="bib-label">2</span></a>]. Es gehört zur Familie der Rastersondenmikroskope (scanning probe microscope, SPM). Bei diesen wird eine Bildgebung nicht wie bei Lichtmikroskopen auf optischem Weg erreicht, sondern durch die Messung der Wechselwirkungen zwischen der Probe und einer Sonde.</div>
+<h2 class="section"><a id='magicparlabel-69' /><span class="section_label">3.1</span> Aufbau</h2>
+<div class="standard"><a id='magicparlabel-70' />Im Fall des Rasterkraftmikroskops besteht die Sonde aus dem sogenannten Cantilever, einer Blattfeder, an deren Ende eine Spitze befestigt ist (siehe <a href="#fig_cantilever">3.1</a>). Dieser kann über Schrittmotoren für die Grob- und Piezomotoren für die Feinpositionierung frei über der Probe bewegt werden. Anstatt des Cantilevers kann in manchen Varianten des Rasterkraftmikroskops auch die Probe bewegt werden.</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-75' /><img style='width:100%;' src='3_home_cbuehler_Dokumente_Bachelorarbeit_wikime___ng_Electron_Microscope__magnification_1000x.png' alt='image: 3_home_cbuehler_Dokumente_Bachelorarbeit_wikime___ng_Electron_Microscope__magnification_1000x.png' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-76' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 3.1:<div class="plain_layout"><a id='magicparlabel-80' /><a id="fig_cantilever" />
+Elektronenmikroskop-Aufnahme eines Cantilevers mit 1000-facher Vergrößerung. An den Abnutzungserscheinungen an der Spitze lässt sich erkennen, dass dieser bereits verwendet wurde. Foto: SecretDisc / CC BY-SA 3.0</div>
+</div></div>
+
+
+</div>
+
+
+<div class="standard"><a id='magicparlabel-82' />Bewegt man mithilfe der Motoren den Cantilever auf die Probe zu, so gibt es je nach Abstand zur Probe eine Interaktion zwischen dem Potential der Probe und der Spitze. Durch die resultierende Kraft verbiegt sich der Cantilever. Wenn man diese Deformation misst, lassen sich so Rückschlüsse auf das Potential und somit die Topographie der Probe ziehen.</div>
+
+<div class="standard"><a id='magicparlabel-83' />In der ursprünglichen Variante von Binnig, Quate und Gerber wurde die Deformation über ein Rastertunnelmikroskop (scanning tunneling microscope, STM) gemessen, welches ebenfalls zur Familie der Rastersondenmikroskope gehört. Dies war jedoch recht aufwendig und anfällig. Moderne Rasterkraftmikroskope messen die Ablenkung des Cantilevers daher mithilfe eines Laserstrahls, welcher an der Oberfläche des Cantilevers reflektiert wird. Je nach Verbiegung des Cantilevers wird der Strahl in eine bestimmte Richtung reflektiert. Diese wird über eine viergeteilte Fotodiode (genannt Vierquadrantendiode) gemessen.</div>
+
+<div class="standard"><a id='magicparlabel-84' />Der schematische Aufbau ist in <a href="#fig_afm_block_diagram">3.2</a> dargestellt.</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-89' /><img style='width:100%;' src='4_home_cbuehler_Dokumente_Bachelorarbeit_wikimedia_Atomic_force_microscope_block_diagram__de_.png' alt='image: 4_home_cbuehler_Dokumente_Bachelorarbeit_wikimedia_Atomic_force_microscope_block_diagram__de_.png' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-90' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 3.2:<div class="plain_layout"><a id='magicparlabel-94' /><a id="fig_afm_block_diagram" />
+Schematischer Aufbau eines Rasterkraftmikroskops. Foto: Cepheiden / Gemeinfrei</div>
+</div></div>
+
+
+</div>
+
+<h2 class="section"><a id='magicparlabel-96' /><span class="section_label">3.2</span> Modi</h2>
+<div class="standard"><a id='magicparlabel-97' />Ein Rasterkraftmikroskop kann auf ganz unterschiedlich Arten verwendet werden, um Informationen über die Probe zu bekommen.</div>
+<h3 class="subsection"><a id='magicparlabel-98' /><span class="subsection_label">3.2.1</span> Contact Mode</h3>
+<div class="standard"><a id='magicparlabel-99' />Der einfachste Modus ist dabei der Kontakt-Modus (contact mode). Hierbei steht die Spitze in mechanischem Kontakt mit der Probe. Man unterscheidet dabei zwei Untervarianten.</div>
+
+<div class="standard"><a id='magicparlabel-100' />Beim &ldquo;constant height mode&rdquo; bleibt die Höhe des Cantilevers unverändert. Je nach Abstand zur Probe verbiegt er sich unterschiedlich stark. Wird er nun in x- und y-Richtung bewegt, so bekommt man die topographische Information über die Probe.</div>
+
+<div class="standard"><a id='magicparlabel-101' />Im &ldquo;constant force mode&rdquo; wird noch zusätzlich ein Regelkreis mit eingebaut, der den Abstand zur Probe so verändert, dass die resultierende Kraft konstant gehalten wird. Die Topographie-Information befindet sich nun nicht mehr in der Ablenkung, sondern in der Höhenposition des Cantilevers. Diese Variante hat den Vorteil, dass geringere Kräfte auf die Probe wirken und diese somit weniger beschädigt wird.</div>
+<h3 class="subsection"><a id='magicparlabel-102' /><span class="subsection_label">3.2.2</span> Non-Contact Mode</h3>
+<div class="standard"><a id='magicparlabel-103' />Beim Nicht-Kontakt-Modus (non-contact mode) befindet sich die Spitze nicht im direkten mechanischen Kontakt mit der Probe, sondern ist etwas entfernt davon.</div>
+
+<div class="standard"><a id='magicparlabel-104' />Dort wird der Cantilever zu Schwingungen angeregt. Wenn nun die Spitze mit dem Probenpotential interagiert, so verschiebt sich die Resonanzfrequenz. Diese Verschiebung lässt nun Rückschlüsse auf die Probentopographie zu.</div>
+<h3 class="subsection"><a id='magicparlabel-105' /><span class="subsection_label">3.2.3</span> Intermittent Contact Mode</h3>
+<div class="standard"><a id='magicparlabel-106' />Beim &ldquo;intermittent contact mode&rdquo; wird der Cantilever ebenfalls zu Schwingungen angeregt. Er schwingt allerdings nicht frei, sondern interagiert auch kurzzeitig mechanisch mit der Probenoberfläche. Auch hierbei kommt es zu einer Phasenverschiebung.</div>
+
+<div class="standard"><a id='magicparlabel-107' />In diesem Modus wird meist eine konstante Anregungsfrequenz in der Nähe der Resonanzfrequenz des Cantilevers verwendet, und über einen Regelkreis wird der Abstand so gesteuert, dass eine konstante Amplitude erreicht wird.</div>
+<h3 class="subsection"><a id='magicparlabel-108' /><span class="subsection_label">3.2.4</span> Force Volume Mode</h3>
+<div class="standard"><a id='magicparlabel-109' />Anstatt über einen Regelkreis eine bestimmte Größe konstant zu halten, kann man auch an jedem Messpunkt eine vollständige Kraft-Distanz-Kurve aufnehmen. Dies wird als &ldquo;force volume mode&rdquo; bezeichnet.</div>
+
+<div class="standard"><a id='magicparlabel-110' />Die genauen herstellerspezifische Varianten haben meist noch eigene Namen. Die Variante von JPK Instruments wird beispielsweise Quantitative Imaging (QI) genannt[<a href='#LyXCite-qimode'><span class="bib-label">12</span></a>].</div>
+
+<div class="standard"><a id='magicparlabel-111' />Aus diesen Informationen lassen sich nicht nur Rückschlüsse auf die Topologie, sondern auch auf mechanische Eigenschaften der Probe wie Elastizität oder Adhäsionskräfte ziehen (siehe <a href="#fig_online_analysis">3.3</a>).</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-116' /><img style='width:100%;' src='5_home_cbuehler_Dokumente_Bachelorarbeit_jpk-te___of_online_analysis_of_force_distance_curves.png' alt='image: 5_home_cbuehler_Dokumente_Bachelorarbeit_jpk-te___of_online_analysis_of_force_distance_curves.png' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-117' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 3.3:<div class="plain_layout"><a id='magicparlabel-121' /><a id="fig_online_analysis" />
+Schematische Ansicht der Online-Analyse von Kraft-Distanz-Kurven[<a href='#LyXCite-qimode'><span class="bib-label">12</span></a>].</div>
+</div></div>
+
+
+</div>
+
+<h2 class="section"><a id='magicparlabel-123' /><span class="section_label">3.3</span> Kraft-Distanz-Kurven</h2>
+<div class="standard"><a id='magicparlabel-124' />Bei der Annäherung von Probe und Cantilever-Spitze ergeben sich ganz charakteristische Kraft-Distanz-Kurven (<a href="#fig_force_distance">3.4</a> unten). Die Interaktion lässt sich am einfachsten über ein Lennard-Jones-Potential modellieren.</div>
+
+<div class="standard"><a id='magicparlabel-125' />Die daraus resultierende Kraft ist im oberen Teil der Abbildung dargestellt. Die Geraden entsprechen der Federkraft des Cantilevers. Das System ist im Gleichgewicht, wenn die Kraft aus dem Potential gleich der Federkraft ist.</div>
+
+<div class="standard"><a id='magicparlabel-126' />Bewegt sich der Cantilever auf die Probe zu, so wirkt zunächst kaum eine Kraft. Bei weiterer Annäherung wirkt dann eine anziehende Kraft. Diese wird zwischen Punkt c' und b immer stärker. Vom Punkt b springt der Cantilever sogar direkt zu b'. Dies wird auch Snap-In genannt. Von diesem Punkt aus steigt die Kraft kontinuierlich an, bis das Potential schließlich abstoßend wirkt.</div>
+
+<div class="standard"><a id='magicparlabel-127' />Auf dem Rückweg sieht die Kurve bis zum Punkt b' identisch aus. Von dort springt sie aber nicht zu b zurück, sondern das Potential wirkt weiter anziehend bis zum Punkt c. Es gibt also eine größere Adhäsion als bei der Annäherung. Von dort springt sie zu dem Punkt c' stimmt sie wieder mit der Annäherungskurve, welche in diesem Bereich als Baseline bezeichnet wird, überein.[<a href='#LyXCite-cappella1999force'><span class="bib-label">4</span></a>, <a href='#LyXCite-butt2005force'><span class="bib-label">3</span></a>]</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-132' /><img style='width:100%;' src='6_home_cbuehler_Dokumente_Bachelorarbeit_Capell___truction_of_an_AFM_force-displacement_curve.png' alt='image: 6_home_cbuehler_Dokumente_Bachelorarbeit_Capell___truction_of_an_AFM_force-displacement_curve.png' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-133' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 3.4:<div class="plain_layout"><a id='magicparlabel-137' /><a id="fig_force_distance" />
+Graphische Konstruktion einer Kraft-Distanz-Kurve. Oben: Spitze-Probe-Interaktion, modelliert durch ein Lennard-Jones-Potential und Kraftkurven des Cantilevers. Unten: resultierende Kraft-Distanz-Kurve. [<a href='#LyXCite-cappella1999force'><span class="bib-label">4</span></a>]</div>
+</div></div>
+
+
+</div>
+
+<h1 class="chapter"><a id='magicparlabel-139' /><span class="chapter_label">4</span> <a id="chap_Hertz_Modell" />
+Hertz-Modell</h1>
+<div class="standard"><a id='magicparlabel-140' />Aus der Steigung der Kraft-Distanz-Kurve lassen sich schon wertvolle qualitätive Rückschlüsse auf die Elastizität der Probe ziehen. Um allerdings auch quantitative Ergebnisse zu bekommen, ist ein Modell nötig, um daraus den Elastizitätsmodul zu berechnen. Ein relativ einfaches aber sehr verbreitetes Modell wurde bereits 1881 von Heinrich Hertz aufgestellt[<a href='#LyXCite-hertz1882ueber'><span class="bib-label">10</span></a>]. Dieses findet auch noch heute breite Anwendung.</div>
+
+<div class="standard"><a id='magicparlabel-141' />Es beschreibt, wie sich zwei perfekte elastische Kugeln verhalten, die aneinander gepresst werden. Die beiden Kugeln können durch</div>
+
+<div class="standard"><a id='magicparlabel-142' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow>
+   <msubsup>
+    <mrow><mi>R</mi>
+    </mrow>
+    <mrow><mi>i</mi>
+    </mrow>
+    <mrow><mn>2</mn>
+    </mrow>
+   </msubsup><mo>=</mo>
+   <msup>
+    <mrow><mi>r</mi>
+    </mrow>
+    <mrow><mn>2</mn>
+    </mrow>
+   </msup><mo>+</mo><mo>(</mo>
+   <msub>
+    <mrow><mi>R</mi>
+    </mrow>
+    <mrow><mi>i</mi>
+    </mrow>
+   </msub><mo>-</mo>
+   <msub>
+    <mrow><mi>z</mi>
+    </mrow>
+    <mrow><mi>i</mi>
+    </mrow>
+   </msub><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo><mi>r</mi><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo>
+   <msup>
+    <mrow><mo>)</mo>
+    </mrow>
+    <mrow><mn>2</mn>
+    </mrow>
+   </msup>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-143' />beschrieben werden. Dabei ist <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <msub>
+   <mrow><mi>R</mi>
+   </mrow>
+   <mrow><mi>i</mi>
+   </mrow>
+  </msub>
+ </mrow></math> der Radius der jeweiligen Kugel, <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi>r</mi>
+ </mrow></math> der Abstand von der z-Achse (welche durch die zylindrische Symmetrie-Achse festgelegt wird), und <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <msub>
+   <mrow><mi>z</mi>
+   </mrow>
+   <mrow><mi>i</mi>
+   </mrow>
+  </msub>
+ </mrow></math> der Abstand von der x-Achse. Für kleine Abstände <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi>r</mi>
+ </mrow></math> lässt sich dies umformen zu<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow>
+   <msub>
+    <mrow><mi>z</mi>
+    </mrow>
+    <mrow><mi>i</mi>
+    </mrow>
+   </msub><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo><mi>r</mi><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo><mo>=</mo>
+   <mfrac>
+    <mrow>
+     <msup>
+      <mrow><mi>r</mi>
+      </mrow>
+      <mrow><mn>2</mn>
+      </mrow>
+     </msup>
+    </mrow>
+    <mrow><mn>2</mn>
+    </mrow>
+   </mfrac>
+   <mfrac>
+    <mrow><mn>1</mn>
+    </mrow>
+    <mrow>
+     <msub>
+      <mrow><mi>R</mi>
+      </mrow>
+      <mrow><mi>i</mi>
+      </mrow>
+     </msub>
+    </mrow>
+   </mfrac><mn>.</mn>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-144' />Der Abstand zweier Punkte auf den beiden Kugeln mit dem selben Abstand <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi>r</mi>
+ </mrow></math> ist somit<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mo> &Delta; </mo><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo><mi>r</mi><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo><mo>=</mo><mi> &delta; </mi><mo>-</mo>
+   <mfrac>
+    <mrow>
+     <msup>
+      <mrow><mi>r</mi>
+      </mrow>
+      <mrow><mn>2</mn>
+      </mrow>
+     </msup>
+    </mrow>
+    <mrow><mn>2</mn>
+    </mrow>
+   </mfrac><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo>
+   <mrow>
+    <mfrac>
+     <mrow><mn>1</mn>
+     </mrow>
+     <mrow>
+      <msub>
+       <mrow><mi>R</mi>
+       </mrow>
+       <mrow><mn>1</mn>
+       </mrow>
+      </msub>
+     </mrow>
+    </mfrac><mo>+</mo>
+    <mfrac>
+     <mrow><mn>1</mn>
+     </mrow>
+     <mrow>
+      <msub>
+       <mrow><mi>R</mi>
+       </mrow>
+       <mrow><mn>2</mn>
+       </mrow>
+      </msub>
+     </mrow>
+    </mfrac>
+   </mrow><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo><mn>.</mn>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-145' />Die Druckverteilung der elastischen Deformation ist</div>
+
+<div class="standard"><a id='magicparlabel-146' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mi>p</mi><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo><mi>r</mi><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo><mo>=</mo>
+   <msub>
+    <mrow><mi>p</mi>
+    </mrow>
+    <mrow><mn>0</mn>
+    </mrow>
+   </msub>
+   <msqrt>
+    <mrow><mn>1</mn><mo>-</mo>
+     <mfrac>
+      <mrow>
+       <msup>
+        <mrow><mi>r</mi>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+       </msup>
+      </mrow>
+      <mrow>
+       <msup>
+        <mrow><mi>a</mi>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+       </msup>
+      </mrow>
+     </mfrac>
+    </mrow>
+   </msqrt>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-147' />mit dem Kontaktradius <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi>a</mi>
+ </mrow></math> und dem Maximaldruck <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <msub>
+   <mrow><mi>p</mi>
+   </mrow>
+   <mrow><mn>0</mn>
+   </mrow>
+  </msub>
+ </mrow></math> in der Mitte der Kontaktfläche. Daraus ergibt sich eine Deformation der Kugel mit</div>
+
+<div class="standard"><a id='magicparlabel-148' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow>
+   <msub>
+    <mrow><mi>u</mi>
+    </mrow>
+    <mrow>
+     <msub>
+      <mrow><mi>z</mi>
+      </mrow>
+      <mrow><mi>i</mi>
+      </mrow>
+     </msub>
+    </mrow>
+   </msub><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo><mi>r</mi><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo><mo>=</mo>
+   <mfrac>
+    <mrow>
+     <mrow><mn>1</mn><mo>-</mo>
+      <msubsup>
+       <mrow><mi> &nu; </mi>
+       </mrow>
+       <mrow><mi>i</mi>
+       </mrow>
+       <mrow><mn>2</mn>
+       </mrow>
+      </msubsup>
+     </mrow>
+    </mrow>
+    <mrow>
+     <msub>
+      <mrow><mi>E</mi>
+      </mrow>
+      <mrow><mi>i</mi>
+      </mrow>
+     </msub>
+    </mrow>
+   </mfrac>
+   <mfrac>
+    <mrow><mi> &pi; </mi>
+    </mrow>
+    <mrow><mn>4</mn>
+    </mrow>
+   </mfrac>
+   <mfrac>
+    <mrow>
+     <msub>
+      <mrow><mi>p</mi>
+      </mrow>
+      <mrow><mn>0</mn>
+      </mrow>
+     </msub>
+    </mrow>
+    <mrow><mi>a</mi>
+    </mrow>
+   </mfrac><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo>
+   <mrow><mn>2</mn>
+    <msup>
+     <mrow><mi>a</mi>
+     </mrow>
+     <mrow><mn>2</mn>
+     </mrow>
+    </msup><mo>-</mo>
+    <msup>
+     <mrow><mi>r</mi>
+     </mrow>
+     <mrow><mn>2</mn>
+     </mrow>
+    </msup>
+   </mrow><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-149' />mit der Poisonzahl <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <msub>
+   <mrow><mi> &nu; </mi>
+   </mrow>
+   <mrow><mi>i</mi>
+   </mrow>
+  </msub>
+ </mrow></math> und dem Elastizitätsmodul <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <msub>
+   <mrow><mi>E</mi>
+   </mrow>
+   <mrow><mi>i</mi>
+   </mrow>
+  </msub>
+ </mrow></math> der jeweiligen Kugel. Summiert man diese, so bekommt man wieder den Abstand zweier Punkte</div>
+
+<div class="standard"><a id='magicparlabel-150' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mo> &Delta; </mo><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo><mi>r</mi><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo><mo>=</mo><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo>
+   <mrow>
+    <mfrac>
+     <mrow>
+      <mrow><mn>1</mn><mo>-</mo>
+       <msubsup>
+        <mrow><mi> &nu; </mi>
+        </mrow>
+        <mrow><mn>1</mn>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+       </msubsup>
+      </mrow>
+     </mrow>
+     <mrow>
+      <msub>
+       <mrow><mi>E</mi>
+       </mrow>
+       <mrow><mn>1</mn>
+       </mrow>
+      </msub>
+     </mrow>
+    </mfrac><mo>+</mo>
+    <mfrac>
+     <mrow>
+      <mrow><mn>1</mn><mo>-</mo>
+       <msubsup>
+        <mrow><mi> &nu; </mi>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+       </msubsup>
+      </mrow>
+     </mrow>
+     <mrow>
+      <msub>
+       <mrow><mi>E</mi>
+       </mrow>
+       <mrow><mn>2</mn>
+       </mrow>
+      </msub>
+     </mrow>
+    </mfrac>
+   </mrow><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo>
+   <mfrac>
+    <mrow><mi> &pi; </mi>
+    </mrow>
+    <mrow><mn>4</mn>
+    </mrow>
+   </mfrac>
+   <mfrac>
+    <mrow>
+     <msub>
+      <mrow><mi>p</mi>
+      </mrow>
+      <mrow><mn>0</mn>
+      </mrow>
+     </msub>
+    </mrow>
+    <mrow><mi>a</mi>
+    </mrow>
+   </mfrac><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo>
+   <mrow><mn>2</mn>
+    <msup>
+     <mrow><mi>a</mi>
+     </mrow>
+     <mrow><mn>2</mn>
+     </mrow>
+    </msup><mo>-</mo>
+    <msup>
+     <mrow><mi>r</mi>
+     </mrow>
+     <mrow><mn>2</mn>
+     </mrow>
+    </msup>
+   </mrow><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo><mn>.</mn>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-151' />Vergleicht man dies mit der vorherigen Formel für <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mo> &Delta; </mo><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo><mi>r</mi><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo>
+  </mrow>
+ </mrow></math>, so bekommt man</div>
+
+<div class="standard"><a id='magicparlabel-152' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow>
+   <mfrac>
+    <mrow><mn>1</mn>
+    </mrow>
+    <mrow><mi>R</mi>
+    </mrow>
+   </mfrac><mo>=</mo><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo>
+   <mrow>
+    <mfrac>
+     <mrow>
+      <mrow><mn>1</mn><mo>-</mo>
+       <msubsup>
+        <mrow><mi> &nu; </mi>
+        </mrow>
+        <mrow><mn>1</mn>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+       </msubsup>
+      </mrow>
+     </mrow>
+     <mrow>
+      <msub>
+       <mrow><mi>E</mi>
+       </mrow>
+       <mrow><mn>1</mn>
+       </mrow>
+      </msub>
+     </mrow>
+    </mfrac><mo>+</mo>
+    <mfrac>
+     <mrow>
+      <mrow><mn>1</mn><mo>-</mo>
+       <msubsup>
+        <mrow><mi> &nu; </mi>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+       </msubsup>
+      </mrow>
+     </mrow>
+     <mrow>
+      <msub>
+       <mrow><mi>E</mi>
+       </mrow>
+       <mrow><mn>2</mn>
+       </mrow>
+      </msub>
+     </mrow>
+    </mfrac>
+   </mrow><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo>
+   <msub>
+    <mrow><mi>p</mi>
+    </mrow>
+    <mrow><mn>0</mn>
+    </mrow>
+   </msub>
+   <mfrac>
+    <mrow>
+     <msup>
+      <mrow><mi> &pi; </mi>
+      </mrow>
+      <mrow><mn>2</mn>
+      </mrow>
+     </msup>
+    </mrow>
+    <mrow>
+     <mrow><mn>2</mn><mi>a</mi>
+     </mrow>
+    </mrow>
+   </mfrac>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-153' />und </div>
+
+<div class="standard"><a id='magicparlabel-154' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mi> &delta; </mi><mo>=</mo><mo form='prefix' fence='true' stretchy='true' symmetric='true'>(</mo>
+   <mrow>
+    <mfrac>
+     <mrow>
+      <mrow><mn>1</mn><mo>-</mo>
+       <msubsup>
+        <mrow><mi> &nu; </mi>
+        </mrow>
+        <mrow><mn>1</mn>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+       </msubsup>
+      </mrow>
+     </mrow>
+     <mrow>
+      <msub>
+       <mrow><mi>E</mi>
+       </mrow>
+       <mrow><mn>1</mn>
+       </mrow>
+      </msub>
+     </mrow>
+    </mfrac><mo>+</mo>
+    <mfrac>
+     <mrow>
+      <mrow><mn>1</mn><mo>-</mo>
+       <msubsup>
+        <mrow><mi> &nu; </mi>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+        <mrow><mn>2</mn>
+        </mrow>
+       </msubsup>
+      </mrow>
+     </mrow>
+     <mrow>
+      <msub>
+       <mrow><mi>E</mi>
+       </mrow>
+       <mrow><mn>2</mn>
+       </mrow>
+      </msub>
+     </mrow>
+    </mfrac>
+   </mrow><mo form='postfix' fence='true' stretchy='true' symmetric='true'>)</mo>
+   <msub>
+    <mrow><mi>p</mi>
+    </mrow>
+    <mrow><mn>0</mn>
+    </mrow>
+   </msub>
+   <mfrac>
+    <mrow>
+     <mrow>
+      <msup>
+       <mrow><mi> &pi; </mi>
+       </mrow>
+       <mrow><mn>2</mn>
+       </mrow>
+      </msup><mi>a</mi>
+     </mrow>
+    </mrow>
+    <mrow><mn>2</mn>
+    </mrow>
+   </mfrac>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-155' />und daraus</div>
+
+<div class="standard"><a id='magicparlabel-156' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mi>a</mi><mo>=</mo>
+   <msqrt>
+    <mrow><mi>R</mi><mi> &delta; </mi>
+    </mrow>
+   </msqrt><mn>.</mn>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-157' />Durch Integration über die Druckverteilung auf der gesamten Fläche erhält man die Kraft</div>
+
+<div class="standard"><a id='magicparlabel-158' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mi>F</mi><mo>=</mo>
+   <msub>
+    <mrow><mi>p</mi>
+    </mrow>
+    <mrow><mn>0</mn>
+    </mrow>
+   </msub>
+   <mfrac>
+    <mrow><mn>2</mn>
+    </mrow>
+    <mrow><mn>3</mn>
+    </mrow>
+   </mfrac>
+   <msup>
+    <mrow><mi>a</mi>
+    </mrow>
+    <mrow><mn>2</mn>
+    </mrow>
+   </msup><mn>.</mn>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-159' />Nimmt man nun die Probe als Kugel mit unendlichem Radius, also als Halbebene, und die Spitze des Cantilevers als unendlich harte Kugel an, so ergibt sich schließlich der Ausdruck</div>
+
+<div class="standard"><a id='magicparlabel-160' /><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mi>F</mi><mo>=</mo>
+   <mfrac>
+    <mrow>
+     <mrow><mn>4</mn>
+      <msqrt>
+       <msub>
+        <mrow><mi>R</mi>
+        </mrow>
+        <mrow><mi>C</mi>
+        </mrow>
+       </msub>
+      </msqrt>
+     </mrow>
+    </mrow>
+    <mrow><mn>3</mn>
+    </mrow>
+   </mfrac>
+   <mfrac>
+    <mrow><mi>E</mi>
+    </mrow>
+    <mrow>
+     <mrow><mn>1</mn><mo>-</mo>
+      <msup>
+       <mrow><mi> &nu; </mi>
+       </mrow>
+       <mrow><mn>2</mn>
+       </mrow>
+      </msup>
+     </mrow>
+    </mrow>
+   </mfrac>
+   <msup>
+    <mrow><mi> &delta; </mi>
+    </mrow>
+    <mrow>
+     <mfrac>
+      <mrow><mn>3</mn>
+      </mrow>
+      <mrow><mn>2</mn>
+      </mrow>
+     </mfrac>
+    </mrow>
+   </msup><mn>.</mn>
+  </mrow>
+ </mrow></math></div>
+
+<div class="standard"><a id='magicparlabel-161' />mit Radius des Cantilevers <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <msub>
+   <mrow><mi>R</mi>
+   </mrow>
+   <mrow><mi>C</mi>
+   </mrow>
+  </msub>
+ </mrow></math>. Die Poissonzahl <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &nu; </mi>
+ </mrow></math> hängt vom Material ab. Bei weichen biologischen Proben wird in der Regel der Wert auf <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mn>0.5</mn>
+ </mrow></math> festgelegt, was inkompressiblen Materialien wie beispielsweise Gummi entspricht. Bei einer vorliegenden Kraft-Distanz-Kurve lässt sich also mittels dieses Modells der Elastizitätsmodul <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi>E</mi>
+ </mrow></math> berechnen.[<a href='#LyXCite-ikai2010bewegung'><span class="bib-label">11</span></a>, <a href='#LyXCite-gigler'><span class="bib-label">9</span></a>]</div>
+
+<div class="standard"><a id='magicparlabel-162' />Hierfür muss allerdings noch der Kontaktpunkt gefunden werden. Dies ist der Punkt, an dem die Interaktion zwischen Cantilever und Probe beginnt.</div>
+<h1 class="part"><a id='magicparlabel-163' /><span class="part_label">Teil II</span> Methoden und Materialien</h1>
+<h1 class="chapter"><a id='magicparlabel-164' /><span class="chapter_label">5</span> Zellen</h1>
+<div class="standard"><a id='magicparlabel-165' />Im Rahmen dieser Arbeit wurden zwei verschiedene Zelltypen untersucht. Es handelt sich dabei jeweils um Maus-Fibroblasten. Bei Fibroblasten handelt es sich um den wichtigsten Zelltyp im Bindegewebe von Tieren.</div>
+
+<div class="standard"><a id='magicparlabel-166' />Die beiden Zelltypen unterscheiden sich durch das Vorhandensein verschiedener Integrine in der Zellmembran. Beim ersten Typ sind die Integrine <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &alpha; </mi>
+ </mrow></math>v<math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &beta; </mi>
+ </mrow></math>3 und <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &alpha; </mi>
+ </mrow></math>5<math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &beta; </mi>
+ </mrow></math>1, beim zweiten Typ nur <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &alpha; </mi>
+ </mrow></math>5<math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &beta; </mi>
+ </mrow></math>1 vorhanden.</div>
+
+<div class="standard"><a id='magicparlabel-167' />Dies soll dazu dienen, die Funktion der Integrine, insbesondere deren Auswirkung auf die mechanische Stabilität der Zelle, zu untersuchen. Mit den im Rahmen dieser Arbeit gewonnen Messdaten lassen sich beispielsweise die Auswirkungen der <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &alpha; </mi>
+ </mrow></math>v<math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow><mi> &beta; </mi>
+ </mrow></math>3 untersuchen.</div>
+
+<div class="standard"><a id='magicparlabel-168' />Sie sind allerdings nur ein kleiner Beitrag zu einer großen Sammlung von Messungen verschiedener Zellen mit unterschiedlichen Integrinen unter wechselnden Bedingungen. Diese ermöglicht es, über statistische Methoden deutlich aussagekräftigere Ergebnisse zu liefern, als es in einer einzelnen Bachelorarbeit möglich wäre.</div>
+<h1 class="chapter"><a id='magicparlabel-169' /><span class="chapter_label">6</span> Scherkräfte</h1>
+<div class="standard"><a id='magicparlabel-170' />Die Zellen wurden auf mit Fibronektin beschichtetem Glas aufgebracht. Das Fibronektin dient dabei als Ligand für die Integrine, sodass die Zellen auf dem Glas haften.</div>
+
+<div class="standard"><a id='magicparlabel-171' />Es wird vermutet, dass bestimmte Integrine nicht nur für die Adhäsion an der Umgebung der Zelle zuständig sind, sondern dass sie auch eine sensorische Funktion erfüllen. Um diese Annahme weiter zu erforschen, werden die Zellen unter verschiedenen Umgebungsbedingungen gemessen.</div>
+
+<div class="standard"><a id='magicparlabel-172' />Die in dieser Arbeit gemessen Zellen wurden über Nacht einer Scherung ausgesetzt. Hierfür wurde ein Pumpensystem der Firma ibidi verwendet (<a href="#fig_pumpsystem">6.1</a> und <a href="#fig_flow_chamber">6.2</a>). Dabei wird die Scherkraft durch einen kontinuierlichen laminaren Fluss mit dem Nährmedium (DMEM) über das Glas ausgeübt. Die Scherkraft betrug <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mn>0</mn><mo>,</mo><mn>25</mn><mi>d</mi><mi>y</mi><mi>n</mi><mo>/</mo><mi>c</mi>
+   <msup>
+    <mrow><mi>m</mi>
+    </mrow>
+    <mrow><mn>2</mn>
+    </mrow>
+   </msup><mo>=</mo><mn>0</mn><mo>,</mo><mn>025</mn><mi>P</mi><mi>a</mi>
+  </mrow>
+ </mrow></math>.</div>
+
+<div class="standard"><a id='magicparlabel-173' />Vom Aufbau her wirken also Kräfte auf die Zellen ähnlich, wie es auch beispielsweise in Blutgefäßen vorkommt. Die dort wirkenden Kräfte sind aber in der Regel deutlich stärker, etwa im Bereich von <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mn>0</mn><mo>,</mo><mn>5</mn><mo>-</mo><mn>4</mn><mi>P</mi><mi>a</mi>
+  </mrow>
+ </mrow></math>.[<a href='#LyXCite-potters2014measuring'><span class="bib-label">20</span></a>]</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-178' /><img src='7_home_cbuehler_Dokumente_Bachelorarbeit_ibidi_I_109XX_PumpSystem_Laptop_RGB.jpg' alt='image: 7_home_cbuehler_Dokumente_Bachelorarbeit_ibidi_I_109XX_PumpSystem_Laptop_RGB.jpg' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-179' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 6.1:<div class="plain_layout"><a id='magicparlabel-183' /><a id="fig_pumpsystem" />
+ibidi Pumpensystem bestehend aus Flüssigkeitseinheit, Pumpe und Steuerungsrechner. Foto: ibidi</div>
+</div></div>
+
+
+</div>
+
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-189' /><img src='8_home_cbuehler_Dokumente_Bachelorarbeit_ibidi_I_109XX_PumpSystem_2.jpg' alt='image: 8_home_cbuehler_Dokumente_Bachelorarbeit_ibidi_I_109XX_PumpSystem_2.jpg' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-190' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 6.2:<div class="plain_layout"><a id='magicparlabel-194' /><a id="fig_flow_chamber" />
+Flusskammer, in der die Scherkräfte mittels laminarem Fluss auf die Zellen ausgeübt werden. Foto: ibidi</div>
+</div></div>
+
+
+</div>
+
+<h1 class="chapter"><a id='magicparlabel-196' /><span class="chapter_label">7</span> Extraktion</h1>
+<div class="standard"><a id='magicparlabel-197' />Um die Zellen für die Untersuchung mit dem Rasterkraftmikroskop zu untersuchen, wurde zunächst die Flusskammer (<a href="#fig_flow_chamber">6.2</a>) von dem Pumpensystem (<a href="#fig_pumpsystem">6.1</a>) getrennt, das Medium mit einer Pipette entfernt und zweimal mit PBS (phosphatgepufferte Salzlösung) gespült.</div>
+
+<div class="standard"><a id='magicparlabel-198' />Anschließend wurden die Zellen mit 1%iger Triton-X-100-Lösung extrahiert, also die Zellmembran entfernt, sodass das Zytoskelett unter dem Rasterkraftmikroskop untersucht werden kann. Hierfür wurde die Triton-Lösung in die Flusskammer gegeben und nach 20 Minuten auf Eis wieder entfernt.</div>
+
+<div class="standard"><a id='magicparlabel-199' />Abschließend wurde erneut zweimalig mit PBS gespült.</div>
+
+<div class="standard"><a id='magicparlabel-200' />Ohne diese Extraktion wäre es durch eine Messung mit dem Rasterkraftmikroskop kaum möglich, Aussagen über die Steifigkeit des Zellskeletts zu treffen, da der Cantilever lediglich mit der relativ weichen Zellmembran interagieren würde. Es würden auch nicht die feinen Strukturen des Zellskeletts sichtbar werden, da die Membran außerdem die Kraft, welche die kleine Cantilever-Spitze ausübt, auf eine im Vergleich dazu sehr große Fläche verteilt.</div>
+
+<div class="standard"><a id='magicparlabel-201' />Leider hat sich herausgestellt, dass dieser Prozess bei zahlreichen gemessen Zellen nicht den gewünschten Erfolg hatte und diese immer noch eine Membran besaßen. Dies wurde dadurch erkennbar, dass die jeweilige Zelle nur als ganzes, nicht aber die Strukturen des Zellskeletts, bei der Messung sichtbar wurden (siehe <a href="#fig_badextract">7.1</a>).</div>
+
+
+<div class='float float-figure'><div class="plain_layout" style='text-align: center;'><a id='magicparlabel-206' /><img src='9_home_cbuehler_Dokumente_Bachelorarbeit_sc_badextract.png' alt='image: 9_home_cbuehler_Dokumente_Bachelorarbeit_sc_badextract.png' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-207' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 7.1:<div class="plain_layout"><a id='magicparlabel-211' /><a id="fig_badextract" />
+Messergebnis einer unvollständig extrahierten Zelle</div>
+</div></div>
+
+
+</div>
+
+<h1 class="chapter"><a id='magicparlabel-213' /><span class="chapter_label">8</span> Rasterkraftmikroskop</h1>
+<div class="standard"><a id='magicparlabel-214' />Als Rasterkraftmikroskop wurde ein NanoWizard 3 Ultra vom Hersteller JPK Instruments verwendet. Um die Zellen gezielt zu positionieren, ist in den Aufbau auch ein Lichtmikroskop (Axio Zoom.V16 von Zeiss) integriert. Mithilfe eines Streulichts sind die Zellkerne und der Cantilever über das Lichtmikroskop sichtbar, und der Cantilever kann ungefähr an der gewünschten Position platziert werden.</div>
+
+<div class="standard"><a id='magicparlabel-215' />Der verwendete Cantilever stammt von der Firma Nanotools. Als Spitze besitzt er eine Siliziumoxid-Kugel mit einem Radius von <math xmlns="http://www.w3.org/1998/Math/MathML">
+ <mrow>
+  <mrow><mn>0</mn><mo>,</mo><mn>5</mn><mi> &mu; </mi><mi>m</mi>
+  </mrow>
+ </mrow></math>.</div>
+<h2 class="section"><a id='magicparlabel-216' /><span class="section_label">8.1</span> Messvorbereitung</h2>
+<div class="standard"><a id='magicparlabel-217' />Nach dem Einbauen des Cantilevers in das Rasterkraftmikroskop wurde dieser zunächst mindestens 30 Minuten in einer Petrischale mit PBS ohne Zellen gehalten, um sich an die Umgebung zu akklimatisieren.</div>
+
+<div class="standard"><a id='magicparlabel-218' />Das Glasplättchen mit der Zellprobe wurde nach der Extraktion noch passend zugeschnitten, damit es in die für das Rasterkraftmikroskop vorgesehene Petrischale passt. In der Petrischale wurde das passende Glasstück mit einem biokompatiblen Zweikomponentenkleber an vier Klebepunkten gegen Verrutschen gesichert und anschließend die Schale mit PBS aufgefüllt.</div>
+
+<div class="standard"><a id='magicparlabel-219' />Nachdem sich der Cantilever akklimatisiert hat, wurde die nur mit PBS gefüllte Petrischale durch die zu messende Probe ausgetauscht. Vor der eigentlichen Messung musste noch der Cantilever kalibriert werden. Hierfür wurde der Cantilever an einer Stelle auf der Probe positioniert, an der sich keine Zelle, sondern nur die Fibronektinbeschichtung befindet. Nachdem der Cantilever an die Probe angenähert wurde, wurde eine einzelne Kraft-Distanz-Kurve aufgenommen. Aus der Steigung im Bereich großer Annäherung lässt sich über die Näherungsgerade die Kalibrationskonstante für die Konvertierung der an den Piezos anliegenden Spannung in Ablenkung bestimmen.</div>
+
+<div class="standard"><a id='magicparlabel-220' />Anschließend wurde der Cantilever wieder angehoben, sodass er sich frei oberhalb der Probe bewegen kann. Dort wird er durch weißes Rauschen zu Schwingungen angeregt und diese gemessen. Aus dem Schwingungsspektrum kann nun die Resonanzfrequenz und somit die Federkonstante des Cantilevers bestimmt werden.</div>
+
+<div class="standard"><a id='magicparlabel-221' />Nach Abschluss des Kalibrierungsvorgang konnten dann die eigentlichen Messungen durchgeführt werden.</div>
+<h1 class="chapter"><a id='magicparlabel-222' /><span class="chapter_label">9</span> Software</h1>
+<div class="standard"><a id='magicparlabel-223' />Bei Gwyddion[<a href='#LyXCite-nevcas2012gwyddion'><span class="bib-label">17</span></a>] handelt es sich um ein seit 2004 entwickeltes Open-Source-Projekt für die Auswertung von Daten, welche bei der Messung von Rastersondenmikroskopen, also auch von Rasterkraftmikroskopen entstanden sind. Es wird hauptsächlich von David Nečas and Petr Klapetek entwickelt, ist aber auch sehr offen für Beiträge aus der Community. Die Entwicklung wird vom Department of Nanometrology des Czech Metrology Institute unterstützt.</div>
+
+<div class="standard"><a id='magicparlabel-224' />Das Programm ist sehr modular aufgebaut, sodass es recht einfach um weitere Funktionalitäten erweitert werden kann. Es bietet bereits Unterstützung für zahlreiche Dateiformate. Es ist hauptsächlich in C implementiert. Eigene Module können ebenfalls in C erstellt werden, es steht allerdings auch eine Schnittstelle für Python bereit, was die Entwicklung eigener Module deutlich vereinfacht.</div>
+
+<div class="standard"><a id='magicparlabel-225' />Aufgrund dieser Eigenschaften eignet es sich hervorragend als Plattform, um reproduzierbare Forschung [<a href='#LyXCite-__content_aip_journal_cise_11_1_10_1109_MCSE_2009_14'><span class="bib-label">7</span></a>] zu betreiben. In der Regel liefern die Hersteller von Rastersondenmikroskopen eigene Software mit, um die erzeugten Daten auszuwerten. Diese sind aber in der Regel nur zusammen mit dem entsprechenden Gerät verfügbar und beherrschen nur das eigene Datenformat. Ein Nachvollziehen der Auswertung basierend auf den Rohdaten durch andere Forschungsgruppen oder ein Vergleich mit Daten von Geräten anderen Herstellern ist somit kaum möglich.</div>
+
+<div class="standard"><a id='magicparlabel-226' />Mithilfe einer offenen Plattform wie Gwyddion kann dagegen die Auswertung für jeden nachvollziehbar und reproduzierbar dargestellt werden. Desweiteren ist es sogar möglich, bestehende Auswertungen durch Weiterentwicklung und Anpassung der Algorithmen zu verbessern und somit aus bestehenden Daten neue Erkenntnisse zu gewinnen.[<a href='#LyXCite-0957_0233_25_4_044009'><span class="bib-label">15</span></a>]</div>
+
+<div class="standard"><a id='magicparlabel-227' />Aus diesen Gründen werden sämtliche im Rahmen dieser Arbeit entstandene Programmteile wieder als Open Source veröffentlicht, sodass sie durch neue Arbeiten verwendet oder auch verbessert werden können.</div>
+<h1 class="part"><a id='magicparlabel-228' /><span class="part_label">Teil III</span> Ergebnisse</h1>
+<h1 class="chapter"><a id='magicparlabel-229' /><span class="chapter_label">10</span> Anpassungen an Gwyddion</h1>
+<h2 class="section"><a id='magicparlabel-230' /><span class="section_label">10.1</span> Dateigrößen</h2>
+<div class="standard"><a id='magicparlabel-231' />Da Gwyddion bereits seit über 10 Jahren existiert, während sich der &ldquo;force volume mode&rdquo; erst in den letzten Jahren mehr und mehr verbreitet hat, sind die Mehrzahl der Module für die Verarbeitung der zweidimensionalen Daten der anderen Modi konzipiert. Es waren daher eine Reihe von Anpassungen an Gwyddion notwendig, damit es mit den gewachsenen Anforderungen umgehen kann.</div>
+
+<div class="standard"><a id='magicparlabel-232' />Durch Fortschritte in der Elektronik werden sehr viele Daten aufgenommen. Im Falle der für diese Arbeit aufgenommene Dateien besteht eine Datei aus 64x64 Pixeln mit jeweils 5 Kanälen für Annäherung und Zurückziehen mit 6000 Messpunkten für die Annäherung und 1750 für das Zurückziehen. Jeder Messpunkt wird dabei als Fließkommazahl mit 8 Byte gespeichert.</div>
+
+<div class="standard"><a id='magicparlabel-233' />Es ergibt sich also eine Größe von 1,3 GB. Da zur Zeit der Enstehung von Gwyddion vor allem 32bit-Betriebssysteme vorherrschend waren, welche meist eine Grenze von 2 GB Arbeitsspeicher pro Prozess besaßen und die zu bearbeitenden Datenmengen bis vor kurzem auch noch deutlich kleiner waren, ist das Gwyddion-eigene Dateiformat intern auf 2 GB beschränkt. Diese Grenze ist allerdings nun schnell ereicht, wenn ein paar Kanäle mit verschiedenen Kalibrierungen abgespeichert wird. Glücklicherweise konnte durch eine einfache Anpassung beim Einlesen der Dateien diese Grenze auf 4 GB angehoben werden.</div>
+
+<div class="standard"><a id='magicparlabel-234' />Die Größe des Containers in der Datei wird als 32-bit Ganzzahl gespeichert. Allerdings wurde beim Auslesen die Zahl als vorzeichenbehaftet interpretiert, womit maximal 2 GB möglich waren. Durch Interpretieren als vorzeichenlose Zahl sind nun 4 GB möglich.</div>
+
+<div class="standard"><a id='magicparlabel-235' />Diese Anpassung wurde in Gwyddion mit der Revision 16429 aufgenommen.</div>
+
+<div class="standard"><a id='magicparlabel-236' />Um das Problem mit der begrenzten Dateigröße aber endgültig zu lösen, wurde noch ein Modul implementiert, das die Daten mithilfe des Python-Standard-Moduls pickle abspeichern kann. Damit ist die verarbeitbare Dateigröße nur noch durch den zur Verfügung stehenden virtuellen Arbeitsspeicher begrenzt.</div>
+<h2 class="section"><a id='magicparlabel-237' /><span class="section_label">10.2</span> Volume data modules</h2>
+<div class="standard"><a id='magicparlabel-238' />Gwyddion stellt die Möglichkeit bereit, verschiedene Arten von Modulen zu implementieren.</div>
+
+<div class="standard"><a id='magicparlabel-239' />Die unterstützten Typen sind process, um zweidimensionel Bilder zu bearbeiten, file um Dateien einzulesen, graph um zweidimensionale Graphen zu manipulieren, layer um Ebenen zu bearbeiten, tool um neue Bearbeitungswerkzeuge bereitzustellen, und für diese Arbeit vor allem von Bedeutung volume, um Force-Volume-Daten zu bearbeiten.[<a href='#LyXCite-klapetek2004gwyddion'><span class="bib-label">14</span></a>]</div>
+
+<div class="standard"><a id='magicparlabel-240' />Ein Modul wird in Gwyddion traditionell in C implementiert. Es stellt jedoch auch die Möglichkeit zur Verfügung, Python zu verwenden. Dies hat den großen Vorteil, dass die Module auch für Nicht-Softwareentwickler deutlich besser lesbar und einfacher zu entwickeln sind.</div>
+
+<div class="standard"><a id='magicparlabel-241' />Bis zur Version 2.37 konnten allerdings nicht alle Modul-Typen in Python implementiert werden. Die Unterstützung für Volume-Module hat bislang gefehlt. Daher musste Gwyddion angepasst werden. Die Änderungen sind nun auch in der momentan aktuellen Version 2.38 integriert (Revision 16424).</div>
+<h2 class="section"><a id='magicparlabel-242' /><span class="section_label">10.3</span> Direkter Speicherzugriff</h2>
+<div class="standard"><a id='magicparlabel-243' />Die Force-Volume-Daten werden in Gwyddion in einem Brick genannten Objekt gespeichert. Dabei handelt es sich im Wesentlichen um ein dreidimensionales Array aus Fließkommazahlen.</div>
+
+<div class="standard"><a id='magicparlabel-244' />Der Zugriff auf die einzelnen Elemente ist in Gwyddion 2.37 von Python aus über die Methode Brick.get_val(col, row, lev). Da aber hierdurch bei jedem Zugriff Konvertierungen zwischen C- und Python-Typen und weiterer Overhead durch die Sprachgrenze nötig sind, ist dies vor allem bei Massendatenverarbeitung sehr langsam.</div>
+
+<div class="standard"><a id='magicparlabel-245' />Da die Daten als kontinuierlicher Speicherbereich vorliegen, ist es möglich, darauf direkt von Python aus als numpy-Array zuzugreifen.</div>
+
+<div class="standard"><a id='magicparlabel-246' />Auch diese Anpassung wurde in die Version 2.38 integriert (Revision 16427). Sie ermöglicht es, einen brick über den Aufruf gwyutils.brick_data_as_array(brick) in ein Numpy-Array umzuwandeln, welches dann durch reines Python befüllt, ausgelesen und manipuliert werden kann.</div>
+<h2 class="section"><a id='magicparlabel-247' /><span class="section_label">10.4</span> Kopieren von Force-Volume-Daten</h2>
+<div class="standard"><a id='magicparlabel-248' />Eine wichtige Methode, insbesondere bei der Kalibrierung der Daten, ist das Kopieren von Force-Volume-Daten. Diese existierte in Gwyddion 2.37 bereits (gwy_brick_duplicate), war allerdings nur von in C implementierten Modulen aus zugänglich.</div>
+
+<div class="standard"><a id='magicparlabel-249' />Deshalb war diese Anpassung nötig, um die Methode als Brick.duplicate() für Python zur Verfügung zu stellen. Auch sie ist in der neuesten Gwyddion-Version 2.38 integriert (Revision 16489).</div>
+<h1 class="chapter"><a id='magicparlabel-250' /><span class="chapter_label">11</span> Laden der Messdaten</h1>
+<div class="standard"><a id='magicparlabel-251' />Bei der Messung mit einem Rasterkraftmikroskops des Herstellers JPK Instruments im force volume mode, welcher von JPK als "Quantitative Imaging" bezeichnet wird, werden die Daten zunächst in einem proprietären Dateiformat gespeichert. Um die Daten auswerten zu könnten, musste also zuerst ein Modul entwickelt werden, mit welchem die nötigen Informationen aus dieser Datei ausgelesen werden können.</div>
+
+<div class="standard"><a id='magicparlabel-252' />Eine Analyse des Dateiformats ergab, dass es sich hierbei um ein ZIP-Archiv mit einer fest vorgegebenen Dateistruktur handelt. Das Öffnen des ZIP-Archivs und der darin enthaltenen Dateien ist in Python mit dem Modul `zipfile` möglich.</div>
+
+<div class="standard"><a id='magicparlabel-253' />Die Dateien in dem Archiv lassen sich in allgemeine Metadaten und die eigentlichen Nutzdaten der jeweiligen Kanäle unterteilen.</div>
+<h2 class="section"><a id='magicparlabel-254' /><span class="section_label">11.1</span> Metadaten</h2>
+<div class="standard"><a id='magicparlabel-255' />Die allgemeinen Metadaten, welche für alle Kanäle und Messpunkte gültig sind, sind auf die Dateien header.properties und shared-data/header.properties aufgeteilt. Sie sind als Schlüssel-Werte-Paar in einer Textdatei abgespeichert, wobei die Werte mit einem Gleichheitszeichen vom Schlüssel getrennt sind. Jede Zeile entspricht einem Schlüssel-Werte-Paar. </div>
+
+<div class="standard"><a id='magicparlabel-256' />In der Datei header.properties befinden sich allgemeine Informationen über den Messvorgang. Dies sind beispielsweise die Dauer und Anzahl der Messpunkte von Annäherung und Rückzug sowie Größe und Auflösung des aufgenommenen Rasters.</div>
+
+<div class="standard"><a id='magicparlabel-257' />Im Unterverzeichnis shared-data befindet sich ebenfalls eine Datei header.properties. Diese enthält vor allem Informationen über die in dem Archiv enthaltenen Segmente und Kanäle.</div>
+
+<div class="standard"><a id='magicparlabel-258' />In der Regel enthält ein Archiv genau zwei Segmente, nämlich eines für die Annährung und eines für den Rückzug.</div>
+
+<div class="standard"><a id='magicparlabel-259' />Zu den Kanälen sind hier Informationen enthalten, wie die Kanaldaten skaliert werden müssen, um die tatsächlich gemessenen Werte zu erhalten. Da die Kanaldaten als Ganzzahlwerte gespeichert sind, welche jedoch reellwertige Messwerte symbolisieren, ist eine solche Skalierung notwendig. Zusätzlich sind auch Informationen enthalten, in welcher Einheit die Messwerte gemessen wurden, und wie sie in eine andere Darstellung umkonvertiert werden können. Beispielsweise lässt sich die Ablenkung des Cantilevers, welche in Meter gemessen wird, in eine Kraft in Newton umkonvertieren. Diese Konvertierungsfaktoren enstehen vor dem Messvorgang durch die Kalibrierung des Cantilevers.</div>
+<h2 class="section"><a id='magicparlabel-260' /><span class="section_label">11.2</span> Kanäle</h2>
+<div class="standard"><a id='magicparlabel-261' />Die Nutzdaten der Messung sind in mehrere Kanäle aufgeteilt. Jeder Kanal stellt die Messwerte einer bestimmten Messgröße dar. So gibt es beispielsweise jeweils einen Kanal für die horizontale und vertikale Ablenkung des Cantilevers sowie einen Kanal für die Höhe des Piezos. Die Daten für einen Kanal sind jeweils pro Messpunkt und Segment in einer Datei als Ganzzahlwerte im Big-Endian-Format gespeichert. Die Messwerte für die Ablenkung des Cantilevers im ersten Messpunkt (also bei den Koordinaten 0, 0) während der Annährung befinden sich beispielsweise in der Datei &ldquo;index&frasl;0&frasl;segments&frasl;0&frasl;channels&frasl;vDeflection.dat&rdquo;, für die Höheninformation im letzten Messpunkt bei einer Auflösung von 64x64 Messpunkten während des Rückzugs befinden sich die Daten in &ldquo;index&frasl;4095&frasl;segments&frasl;1&frasl;channels&frasl;height.dat&rdquo;.</div>
+
+<div class="standard"><a id='magicparlabel-262' />Die Verknüpfung zwischen den Messdaten und den Metadaten wird pro Messpunkt und Segment in einer weiteren Metadaten-Datei hergestellt. Für den ersten Messpunkt bei der Annährung ist dies beispielsweise die Datei &ldquo;index&frasl;0&frasl;segments&frasl;0&frasl;segment-header.properties&rdquo;. Dort ist unter anderem aufgelistet, welche Kanäle überhaupt existieren und welche Kodierung aus &ldquo;shared-data&frasl;header.properties&rdquo; für sie verwendet werden soll.</div>
+<h2 class="section"><a id='magicparlabel-263' /><span class="section_label">11.3</span> Implementierung</h2>
+<div class="standard"><a id='magicparlabel-264' />Diese Erkenntnisse wurden in einem Python-Modul umgesetzt, um das Laden der Messdaten zu ermöglichen. Das Modul ist unter https:&frasl;&frasl;github.com&frasl;cbuehler&frasl;gwyjpkqidata&frasl;blob&frasl;master&frasl;jpkqidata.py verfügbar. Um es zu verwenden, muss die Datei lediglich im Ordner .gwyddion/pygwy im Home-Verzeichnis abgelegt werden. Dort wird es von Gwyddion automatisch gefunden, und *.jpk-qi-data-Dateien können mit Gwyddion wie auch andere Dateien über &ldquo;Datei - Öffnen&rdquo; geöffnet werden.</div>
+
+<div class="standard"><a id='magicparlabel-265' />Das Modul enthält auch eine Reihe von sogenannten Doctests, welche sicherstellen sollen, dass bei einer Weiterentwicklung des Modules keine bereits funktionierenden Teile beschädigt werden. Diese Tests werden durch den Aufruf &ldquo;python jpkqidata.py&rdquo; ausgeführt. Falls alle Tests erfolgreich sind, so wird keine Ausgabe zurückgeliefert, im Fehlerfall werden die enstsprechenden Fehler ausgegeben.</div>
+
+<div class="standard"><a id='magicparlabel-266' />Für die Verwendung dieses Moduls müssen die Python-Bibliotheken numpy, pillow und six installiert sein.</div>
+
+<div class="standard"><a id='magicparlabel-267' />Numpy wird für sämtliche Berechnungen und Datenkonvertierungen benötigt. Pillow wird benötigt, um die in *.jpk-qi-data-Dateien als TIFF-Dateien vorliegende Daten auszulesen. Um das Modul ohne Abänderung sowohl mit Python 2 als auch mit Python 3 verwendbar zu machen, wird die Kompatibilitätsbibliothek six benötigt.</div>
+<h1 class="chapter"><a id='magicparlabel-268' /><span class="chapter_label">12</span> Kalibrierung</h1>
+<div class="standard"><a id='magicparlabel-269' />Die eingelesenen Daten liegen zunächst nur jeweils in den Einheiten vor, in denen die Größen gemessen wurden. Für den Distanzkanal ist das beispielsweise nicht eine Entfernung, sondern eine Spannung, nämlich die Spannung, die an dem Piezo-Kristall angelegt wurde. Ebenso wird auch nicht die Kraft auf den Cantilever direkt gemessen, sondern zunächst die Spannung an der Photodiode.</div>
+
+<div class="standard"><a id='magicparlabel-270' />Um aus diesen Daten die für eine Steifigkeitsbestimmung nötigen Kraft-Distanz-Kurven zu gewinnen, müssen die Einheiten mit den entsprechenden Kalibrationsfaktoren umgerechnet werden.</div>
+
+<div class="standard"><a id='magicparlabel-271' />Die Faktoren werden vor der Messung bestimmt und in der Datei als Metadaten abgespeichert. Für die Umrechnung wurde das Modul https:&frasl;&frasl;github.com&frasl;cbuehler&frasl;gwyjpkqidata&frasl;blob&frasl;master&frasl;calibratejpkqidata.py entwickelt.</div>
+
+<div class="standard"><a id='magicparlabel-272' />Es muss ebenfalls im Home-Verzeichnis des Benutzers unter .gwyddion/pygwy abgelegt werden. Nachdem eine *.jpk-qi-data-Datei in Gwyddion eingelesen wurde, sind die verschiedenen Kanäle unter &ldquo;Info - Daten-Browser - Volumen&rdquo; zugänglich. Um einen Kanal zu kalibrieren, muss dieser zunächst selektiert werden. Über &ldquo;Volumen Daten - Calibrate JPK quantitative imaging data&rdquo; wird dann das Kalibrations-Modul aktiviert und die kalibrierten Kanäle eingefügt.</div>
+<h1 class="chapter"><a id='magicparlabel-273' /><span class="chapter_label">13</span> Verwendung ohne Gwyddion</h1>
+<div class="standard"><a id='magicparlabel-274' />Nachdem die Daten erfolgreich geladen und kalibriert werden konnten, war der nächste Schritt, sie für die Berechnung der Steifigkeit zu verwenden. Dabei hat sich jedoch leider eine Schwäche von Gwyddion herauskristallisiert. Es hält nämlich die geladene Datei ständig vollständig im Arbeitsspeicher. In dem allermeisten Anwendungsfällen stellt dies zwar kein Problem dar, bei der Berechnung mit force volume daten stößt man allerdings schnell an die Grenzen der Kapazität aktueller Rechner.</div>
+
+<div class="standard"><a id='magicparlabel-275' />Daher wurde das Modul für das Laden der Daten so konzipiert, dass es auch unabhängig von Gwyddion mit einem beliebigen Python-Programm verwendet werden kann.</div>
+
+<div class="standard"><a id='magicparlabel-276' />Der in den vorherigen Kapiteln beschriebene Vorgang des Einlesens und der Kalibrierung sieht dann wie folgt aus:</div>
+
+
+<div class='float float-listings'><pre class ='listings'>from jpkqidata import JpkQiData
+jpkqidata = JpkQiData('Messdaten.jpk-qi-data')
+extend = jpkqidata.segment('extend')
+nominal_height = extend.channel('capacitiveSensorHeight')
+                       .calibrate('nominal')
+force = extend.channel('vDeflection')
+              .calibrate('force')</pre></div>
+
+
+<div class="standard"><a id='magicparlabel-288' />Dieses einfache Programm lädt eine Datei mit dem Namen Messdaten.jpk-qi-data und greift auf das extend-Segment zu, also der Teil der Messung, bei dem sich der Cantilever an die Probe annähert. Analog ist natürlich auch ein Zugriff auf retract möglich.</div>
+
+<div class="standard"><a id='magicparlabel-289' />Aus diesem Segment wird dann der Kanal capacitiveSensorHeight ausgelesen. Dieser enthält die Höheninformation in Form der am Piezo angelegten Spannung. Diese wird direkt anschließend in die nominale Höheninformation umkalibriert.</div>
+
+<div class="standard"><a id='magicparlabel-290' />Analog wird der Kanal vDeflection, welcher die vertikale Ablenkung des Lasers angibt, zunächst als Spannung an der Photodiode ausgelesen und direkt in die Kräfte umkalibriert, die auf den Cantilever wirken.</div>
+
+<div class="standard"><a id='magicparlabel-291' />Der große Vorteil dieser Vorgehensweise gegenüber einem Laden über die graphische Oberfläche von Gwyddion ist nun, dass nur die Daten ausgelesen werden und im Arbeitsspeicher gehalten werden müssen, welche für weitere Berechnungen notwendig sind.</div>
+
+<div class="standard"><a id='magicparlabel-292' />Außerdem liegen die Daten nun als numpy-Arrays vor und können daher direkt mit den im Scientific-Computing-Bereich sehr verbreiteten Python-Bibliotheken NumPy und SciPy[<a href='#LyXCite-jones2001scipy'><span class="bib-label">13</span></a>] für weitere Berechnungen verwendet oder mit matplotlib visualisiert werden.</div>
+<h1 class="chapter"><a id='magicparlabel-293' /><span class="chapter_label">14</span> Berechnung der Steifigkeit</h1>
+<div class="standard"><a id='magicparlabel-294' />Um aus den gemessenen Daten nun quantitative Aussagen über die Steifigkeit der Zellen treffen zu können, wurde das Modul https:&frasl;&frasl;github.com&frasl;cbuehler&frasl;gwyjpkqidata&frasl;blob&frasl;master&frasl;hertzfit.py entwickelt.</div>
+
+<div class="standard"><a id='magicparlabel-295' />Dabei handelt es sich um ein Python-Script, welches auf den Annahmen des Hertz-Modells (<a href="#chap_Hertz_Modell">Kapitel 4</a>) basierend an jeder abgetasteten Stelle den Elastizitätsmodul berechnet. Hierfür wird für jede Stelle die Kraft-Distanz-Kurve genommen und über den Levenberg-Marquadt-Algorithmus werden die entsprechenden Parameter ermittelt.</div>
+
+<div class="standard"><a id='magicparlabel-296' />Der Levenberg-Marquadt-Algorithmus wird oft für die Lösung nichtlinearer Optimierungsprobleme verwendet. Er basiert auf der Methode der kleinsten Quadrate und stellt eine Weiterentwicklung des Gauß-Newton-Verfahrens dar. In dieser Arbeit wird die SciPy-Implementierung dieses Algorithmus in Form der Funktion &ldquo;scipy.optimize.curve_fit&rdquo; verwendet.</div>
+
+<div class="standard"><a id='magicparlabel-297' />Bevor die Parameter berechnet werden können, müssen jedoch zunächst die Daten aufbereitet werden.[<a href='#LyXCite-chang2014automated'><span class="bib-label">5</span></a>]</div>
+
+<div class="standard"><a id='magicparlabel-298' />Zuerst wird die Baseline in der Funktion subtract_baseline ermittelt und von den Messdaten abgezogen. Hierfür wird eine Ausgleichsgerade über die ersten 40% der Annäherungskurve ermittelt. Es wird angenommen, dass in diesem Bereich noch keine Interaktion zwischen Probe und Cantilever stattfindet. Diese wird ebenfalls über den Levenberg-Marquadt-Algorithmus bestimmt.</div>
+
+
+<div class='float float-listings'><pre class ='listings'>def line(x, slope, offset):
+    return x*slope + offset
+
+def subtract_baseline(xdata, ydata):
+    baseline, _ = scipy.optimize.curve_fit(
+                      line,
+                      xdata[:len(xdata)*.4],
+                      ydata[:len(xdata)*.4])
+    return ydata - line(xdata, *baseline)</pre></div>
+
+
+<div class="standard"><a id='magicparlabel-312' />Da die Messdaten in der Regel ein recht geringes Signal-Rauschverhältnis im Bereich des Kontaktpunktes, also an dem Punkt, an dem die Interaktion zwischen Cantilever und Probe beginnt, ist der Kontaktpunkt nicht ohne weiteres direkt bestimmbar. Es wird allerdings ein Anfangswert für den Levenberg-Marquadt-Algorithmus benötigt, welcher idealerweise nahe bei dem tatsächlichen Wert liegt, sodass der Algorithmus schnell konvergiert.</div>
+
+<div class="standard"><a id='magicparlabel-313' />Um also einen Näherungswert für den Kontaktpunkt zu bestimmen, wird zunächst die Standardabweichung über die ersten 40% der Kurve, welche auch als Grundlage für die Berechnung der Baseline dienten, als Maß für die Stärke des Rauschens ermittelt.</div>
+
+
+<div class='float float-listings'><pre class ='listings'>noise_level = data[ : len(data) * .4 ].std()</pre></div>
+
+
+<div class="standard"><a id='magicparlabel-319' />Als ungefährer Kontaktpunkt wird nun der Punkt heuristisch festgelegt, an dem die Kraft-Distanzkurve das fünffache des Rausch-Levels übersteigt.</div>
+
+
+<div class='float float-listings'><pre class ='listings'>threshold_level = 5 * noise_level
+fit_region_start = np.argwhere(data &gt; threshold_level)[0,0]</pre></div>
+
+
+<div class="standard"><a id='magicparlabel-326' />Dies stellt auch gleichzeitig den Punkt dar, ab dem die Hertz-Kurve an die Messdaten angeglichen werden soll. Optional kann auch eine Eindringtiefe angegeben werden. Dadurch wird ermöglicht, dass Bereiche, in denen die Deformation bereits so stark ist, dass unter den zu messenden Strukturen liegende Materialeigenschaften wie etwa die Härte des Substrats zur Geltung kommen, nicht für die Bestimmung der Steifigkeit mit berücksichtigt werden. Anstelle einer Eindringtiefe kann auch optional ein Setpoint, also ein Kraftbetrag festgelegt werden, bis zu diesem die Messkurve berücksichtigt wird. Dieser wird dann intern in die entsprechende Eindringtiefe für diese Messkurve umgerechnet.</div>
+
+<div class="standard"><a id='magicparlabel-327' />Aus den nun vorliegenden Daten können schließlich die Fit-Parameter &ldquo;popt&rdquo; und deren Standardfehler &ldquo;perr&rdquo; bestimmt werden.</div>
+
+<div class="standard"><a id='magicparlabel-328' />Als Fit-Funktion dient dabei die Hertz-Kurve.</div>
+<div class='float float-listings'><pre class ='listings'>popt, pcov = scipy.optimize.curve_fit(
+                 hertz,
+                 xdata[fit_region_start : fit_region_start+depth],
+                 ydata[fit_region_start : fit_region_start+depth],
+                 (approximate_cp, 0))
+perr = np.sqrt(np.diag(pcov))</pre></div>
+
+
+<div class="standard"><a id='magicparlabel-338' />Da die Kraft-Distanz-Kurven an jeder Messtelle voneinander unabhängig sind, bietet sich hier eine Parallelisierung der Berechnung an, um die Rechenleistung aktueller Multiprozessorsysteme voll auszuschöpfen und die Berechnungszeiten deutlich zu verkürzen. Dies wird über das Python-Standard-Modul multiprocessing erreicht. Damit wird für jeden Prozessorkern ein Prozess instanziiert, welche parallel die einzelnen Messpunkte abarbeiten. Dies wird in der Funktion fit_all durchgeführt, welche am Ende jeweils ein numpy-Array für Elastizitätsmodul und Kontaktpunkt zurückliefert. Diese kann bei Bedarf auch ohne großen Aufwand erweitert werden, sodass auch noch beispielsweise die Standardfehler der Fitparameter mit zurückgeliefert werden.</div>
+<div class='float float-listings'><pre class ='listings'>def hertz(x, xc, E, Rc, nu=.5):
+    F = 4.0/3 * E/(1-nu**2) * scipy.sqrt(Rc * (xc-x)**3)
+    return F.real</pre></div>
+
+
+<div class="standard"><a id='magicparlabel-345' />Die zurückgelieferten Daten können dann beliebig für weitere Auswertungen in Python verwendet werden, in ein anderes Format konvertiert und gespeichert werden, um sie mit einem anderen Programm wie etwa Matlab auszuwerten, oder auch in ein DataField in einen Gwyddion-Container gepackt werden, um die Daten in Gwyddion darzustellen und mit den dort vorhandenen (oder auch zusätzlich entwickelten) Werkzeugen zu bearbeiten.</div>
+<h1 class="chapter"><a id='magicparlabel-346' /><span class="chapter_label">15</span> Graphische Oberfläche</h1>
+<div class="standard"><a id='magicparlabel-347' />Das bisher beschriebene Modul ist sehr gut geeignet, wenn viele Messungen automatisiert ausgewertet werden müssen. Bei der Analyse einer einzelnen Messung ist es jedoch von Vorteil, wenn nicht nur das Endergebnis, sondern auch Zwischenschritte visualisiert werden können. Aus diesem Grund wurde eine einfache graphische Benutzeroberfläche entwickelt.</div>
+
+<div class="standard"><a id='magicparlabel-348' />Sie ist direkt in hertzfit.py integriert und kann über</div>
+
+
+<div class='float float-listings'><pre class ='listings'>python hertzfit.py messdaten.jpk-qi-data</pre></div>
+
+
+<div class="standard"><a id='magicparlabel-354' />gestartet werden. Für die Visualisierung wird Matplotlib verwendet und muss dementsprechend auf dem System installiert sein.</div>
+
+<div class="standard"><a id='magicparlabel-355' />In <a href="#fig_gui">15.1</a> wird die graphische Oberfläche gezeigt. Links kann man eine Zelle erkennen. Die Darstellung wurde aus den Messdaten berechnet, indem die minimale Höhe des Cantilevers über der Probe ermittelt wurde. Sie entspricht also in etwa der Topographie der Zelle. Diese Abbildung dient vor allem der Orientierung.</div>
+
+<div class="standard"><a id='magicparlabel-356' />Bei einem Mausklick auf eine beliebige Stelle der Zelle wird unten links die an dieser Stelle gemessene Kraft-Distanz-Kurve dargestellt. Gleichzeitig wird auch ein Fit über diese Kurve mit der im vorherigen Kapitel bestimmten Methode berechnet und dargestellt.</div>
+
+<div class="standard"><a id='magicparlabel-357' />Bei einem weiteren Klick an einer anderen Stelle wird die dortige Kraft-Distanz-Kurve ebenfalls eingeblendet. So ist möglich, Kurven von verschiedenen Stellen direkt miteinander zu vergleichen. In der Abbildung sind zwei Stellen ausgewählt. Die rote Kurve entspricht einer Stelle im linken unteren Bereich der Zelle, wo der Cantilever das relativ harte Zellskelett gemessen hat. Die blaue Kurve stammt von einer Stelle im relativ weichen Zellkern.</div>
+
+<div class="standard"><a id='magicparlabel-358' />Man kann erkennen, dass die türkise Fit-Kurve nicht besonders gut mit der roten Messkurve übereinstimmt. Dies liegt daran, dass bei zu großer Eindringtiefe die unter der Oberfläche liegenden Zellbestandteile zu einer größeren Steifigkeit beitragen und somit die Messung verfälschen.</div>
+
+<div class="standard"><a id='magicparlabel-359' />Um solche Phänomene besser sichtbar zu machen, sind auf der rechten Seite unten das berechnete Elastizitätsmodul in Abhängigkeit der Eindringtiefe und oben der dazugehörige Standardfehler dargestellt. Durch einen Klick in eine dieser beiden Graphen wird der Fit nur bis zu der entsprechenden Eindringtiefe neu berechnet und unten links dargestellt. So lässt sich interaktiv empirisch eine plausible Eindringtiefe ermitteln, bis zu der die Daten ausgewertet werden sollen.</div>
+
+<div class="standard"><a id='magicparlabel-360' />Durch einen Klick außerhalb der Graphen werden diese wieder zurückgesetzt, also geleert. Durch die Verwendung von Matplotlib sind alle Graphen interaktiv, d.h. es kann beliebig darin gezoomt und navigiert werden.</div>
+
+<div class="standard"><a id='magicparlabel-361' />Ganz rechts unten befindet sich außerdem ein Knopf mit der Beschriftung &ldquo;Fit all&rdquo;. Wird dieser ausgelöst, so wird der Hertz-Fit für alle Messpunkte berechnet und anschließend öffnet sich ein neues Fenster (<a href="#fig_fit_all">15.2</a>). Links oben ist wieder wie im vorherigen Fenster die minimale Höhe dargestellt. In der zweiten Zeile links befinden sich die berechneten Kontaktpunkte, unten links das Elastizitätsmodul. Auf der rechten Seite sind die dazugehörigen Standardfehler abgebildet.</div>
+
+<div class="standard"><a id='magicparlabel-362' />Auch hier kann wieder interaktiv das Ergebnis untersucht werden, indem eine oder mehrere Stellen in den Bildern ausgewählt werden. Die entsprechenden Kraft-Distanz-Kurven inklusive Fit werden dann oben rechts dargestellt. Durch einen Klick außerhalb der Graphen wird diese Darstellung wieder geleert.</div>
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-367' /><img style='width:100%;' src='10_home_cbuehler_Dokumente_Bachelorarbeit_sc_Bildschirmfoto_vom_2014-11-12_22_57_22.png' alt='image: 10_home_cbuehler_Dokumente_Bachelorarbeit_sc_Bildschirmfoto_vom_2014-11-12_22_57_22.png' />
+<div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 15.1:<div class="plain_layout"><a id='magicparlabel-371' /><a id="fig_gui" />
+Graphische Oberfläche zur Analyse einer einzelnen Messung. Die Achseneinheiten links oben sind Pixel, links unten Newton über Meter, rechts jeweils Pascal über Anzahl Messpunkte. Die Farbskalaeinheiten sind Meter.</div>
+</div></div>
+</div>
+
+
+
+<div class='float float-figure'><div class="plain_layout"><a id='magicparlabel-376' /><img style='width:100%;' src='11_home_cbuehler_Dokumente_Bachelorarbeit_sc_Bildschirmfoto_vom_2014-11-13_14_59_34.png' alt='image: 11_home_cbuehler_Dokumente_Bachelorarbeit_sc_Bildschirmfoto_vom_2014-11-13_14_59_34.png' />
+<div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 15.2:<div class="plain_layout"><a id='magicparlabel-380' /><a id="fig_fit_all" />
+Ergebnis von &ldquo;Fit all&rdquo;. Links oben: minimale Höhe des Cantilevers über der Zelle. Rechts oben: Kraft-Distanz-Kurven der ausgewählten Punkte. Zweite Zeile: Kontaktpunkte und entsprechender Standardfehler. Letzte Zeile: Elastizitätsmodul und entsprechender Standardfehler. Die Achseneinheiten sind rechts oben Newton über Meter, bei den anderen Graphen jeweils Pixel. Die Farbskalaeinheiten sind in der zweiten Zeile Meter und in der letzten Zeile Pascal.</div>
+</div></div>
+</div>
+
+<h1 class="chapter"><a id='magicparlabel-381' /><span class="chapter_label">16</span> Diskussion der Auswertung</h1>
+<h2 class="section"><a id='magicparlabel-382' /><span class="section_label">16.1</span> Physikalische Interpretation</h2>
+<div class="standard"><a id='magicparlabel-383' />In <a href="#fig_fit_all">15.2</a> lässt sich nun im linken unteren Bild die Steifigkeit der vermessenen Zelle ablesen. Man kann auf einen Blick die Unterschiede der verschiedenen Bildteile erkennen.</div>
+
+<div class="standard"><a id='magicparlabel-384' />Der recht weiche Zellkern hat ein entsprechend niedriges Elastizitätsmodul bis ca. 75 kPa. Dies ist an dem dunkel dargestellten Bildausschnitt rechts oben zu erkennen.</div>
+
+<div class="standard"><a id='magicparlabel-385' />Im Gegensatz dazu sieht man im linken unteren Bereich das härtere Zellskelett. Hier bewegt sich das Elastizitätsmodul etwa im Bereich von 75 kPa bis 1,75 MPa. Es fällt auf, dass in diesem Teil feine Detailstrukturen nur unscharf wahrgenommen werden können. Dies liegt vermutlich daran, dass die harten Filamente bei Krafteinwirkung durch den Cantilever beiseite geschoben werden. Dadurch wird an dieser Stelle ein geringeres Elastizitätsmodul gemessen als wenn die Filamente ihren Ort fest behalten würden und das Bild verschwimmt.</div>
+
+<div class="standard"><a id='magicparlabel-386' />Außerdem fällt auf, dass das Elastizitätsmodul an den Rändern geringer zu sein scheint als in der Mitte. Dies liegt daran, dass in der Mitte der Cantilever tiefer eindringen kann und daher dort eher auf das härtere Fibronectin trifft.</div>
+
+<div class="standard"><a id='magicparlabel-387' />Deutlich vom Rest hebt sich links oben der mit Fibronectin beschichtete Glasträger mit einem Elastitzitätsmodul von etwa 2 MPa ab.</div>
+
+<div class="standard"><a id='magicparlabel-388' />Um aus diesem Ergebnis Aussagen über den Einfluss der Integrine auf die Steifigkeit treffen zu können, sind allerdings noch deutlich mehr Messungen nötig, als im Rahmen dieser Arbeit durchführbar waren.</div>
+
+<div class="standard"><a id='magicparlabel-389' />Eine Möglichkeit für die statistische Auswertung vieler Zellen wäre, die Elastizitätsmodule jedes Pixels von jeder Messung eines Zelltyps zu sammeln und in einem Histogramm darzustellen. Es müssten sich dann mindestens drei Maxima ergeben, das erste für den Zellkern, das zweite für das Zellskelett und das dritte für das Trägermaterial. Anschließend kann die Position und Form des mittleren Maximums für zwei verschieden Zelltypen miteinander verglichen und die Unterschiede ausgewertet werden.</div>
+<h2 class="section"><a id='magicparlabel-390' /><span class="section_label">16.2</span> Vergleich mit Herstellerprogramm</h2>
+<div class="standard"><a id='magicparlabel-391' />Um ein Gefühl für die Qualität der Auswertung mit dem in den vorherigen Kapiteln vorgestellten Programm zu bekommen, wurden die Daten auch mit dem vom Hersteller des Rasterkraftmikroskops vorgesehenen Auswerteprogramm analysiert. Dies ist in diesem Fall das Programm &ldquo;JPK DataProcessing&rdquo;.</div>
+
+<div class="standard"><a id='magicparlabel-392' />Damit die Daten direkt miteinander vergleichbar werden, wurde das von DataProcessing gelieferte Ergebnis (in Form einer *.jpk-qi-image-Datei) mit Gwyddion geladen und über die in Gwyddion integrierte Python-Konsole ebenfalls über Matplotlib visualisiert. Ohne diesen Schritt wäre ein direkter Vergleich nicht möglich, da die von DataProcessing verwendete Farbpalette von der im Python-Programm verwendeten abweicht.</div>
+
+<div class="standard"><a id='magicparlabel-393' />Wenn man das Ergebnis für die Kontaktpunkte (<a href="#fig_Kontaktpunkte">16.1</a>) betrachtet, so fällt auf, dass das Ergebnis weitgehend mit dem aus <a href="#fig_fit_all">15.2</a> übereinstimmt, wobei das von dem Python-Programm berechnete Bild etwas schärfer zu sein scheint.</div>
+
+<div class="standard"><a id='magicparlabel-394' />Größere Abweichungen gibt es allerdings beim Elastizitätsmodul (<a href="#fig_Elastizit__tsmodul">16.2</a>). In der Variante mit DataProcessing sind zwar auch die groben Zellumrisse sichtbar, allerdings sind feinere Strukturen kaum erkennbar.</div>
+
+<div class="standard"><a id='magicparlabel-395' />Bei dem Versuch, diese Abweichungen näher zu untersuchen, ist sehr deutlich der Vorteil des Open-Source-Ansatzes gegenüber dem Closed-Source-Ansatz beim Einsatz in der Forschung zutage getreten.</div>
+
+<div class="standard"><a id='magicparlabel-396' />Während bei Open-Source (wie das hier entwickelte Programm) jeder einzelne Rechenschritt mithilfe des Quelltextes detailliert nachverfolgt werden kann, ist man bei Closed-Source (wie JPK DataProcessing) auf die Angaben aus der Dokumentation des Herstellers angewiesen. In vielen Fällen mag dies zwar ausreichen, es führt allerdings dazu, dass eventuelle Fehler oder einfach Abweichungen der Implementierung von der Dokumentation lediglich vom Hersteller erkannt werden können, anstatt von unabhängigen Experten auf dem Fachgebiet. Auch kann noch so gute Dokumentation nie alle Details der Implementierung darstellen.</div>
+
+<div class="standard"><a id='magicparlabel-397' />Genau dieser Informationsnachteil hat im Fall dieser Arbeit dazu geführt, dass die Diskrepanz der Ergebnisse nicht vollständig untersucht werden konnte. Aus der Dokumentation ließ sich zwar ungefähr der Auswertungsprozess ableiten, wenn man aber die Ergebnisse wieder in das Hertz-Modell einsetzte, so stimmte das Ergebnis bei weitem nicht mit der Messkurve überein. Höchstwahrscheinlich sind also in dem Auswertungsprozess von DataProcessing noch Feinheiten versteckt, welche nicht direkt aus der Dokumentation herausgelesen werden können.</div>
+
+
+<div class='float float-figure'><div class="plain_layout" style='text-align: center;'><a id='magicparlabel-402' /><img src='12_home_cbuehler_Dokumente_Bachelorarbeit_sc_Bildschirmfoto_vom_2014-11-12_23_05_55.png' alt='image: 12_home_cbuehler_Dokumente_Bachelorarbeit_sc_Bildschirmfoto_vom_2014-11-12_23_05_55.png' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-403' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 16.1:<div class="plain_layout"><a id='magicparlabel-407' /><a id="fig_Kontaktpunkte" />
+Kontaktpunkte, ausgewertet mit JPK DataProcessing und dargestellt mit Matplotlib. Die Achseneinheiten sind Pixel, die Farbskalaeinheiten sind Meter.</div>
+</div></div>
+
+
+</div>
+
+
+
+<div class='float float-figure'><div class="plain_layout" style='text-align: center;'><a id='magicparlabel-413' /><img src='13_home_cbuehler_Dokumente_Bachelorarbeit_sc_Bildschirmfoto_vom_2014-11-12_23_04_01.png' alt='image: 13_home_cbuehler_Dokumente_Bachelorarbeit_sc_Bildschirmfoto_vom_2014-11-12_23_04_01.png' />
+</div>
+
+<div class="plain_layout"><a id='magicparlabel-414' /><div class='float-caption-Standard float-caption float-caption-standard'>Abbildung 16.2:<div class="plain_layout"><a id='magicparlabel-418' /><a id="fig_Elastizit__tsmodul" />
+Elastizitätsmodul, ausgewertet mit JPK DataProcessing und dargestellt mit Matplotlib. Die Achseneinheiten sind Pixel, die Farbskalaeinheiten sind Pascal.</div>
+</div></div>
+
+
+</div>
+
+
+<div class="standard"><a id='magicparlabel-420' />Im Gegensatz dazu kann jeder unter https:&frasl;&frasl;github.com&frasl;cbuehler&frasl;gwyjpkqidata den Quelltext herunterladen, beliebig modifizieren und auch seine Änderungen wieder veröffentlichen. Dies ist sehr von Vorteil, wenn sich in der Anwendung des hier vorgestellten Programms in der Praxis herausstellen sollte, dass ein Fehler gemacht wurde oder Verbesserungen vorgenommen werden sollten, oder auch nur geprüft werden soll, welche Schritte bei der Auswertung genau durchgeführt werden.</div>
+<h1 class="chapter"><a id='magicparlabel-421' /><span class="chapter_label">17</span> Fazit</h1>
+<div class="standard"><a id='magicparlabel-422' />Die Untersuchung der mechanischen Eigenschaften von Zellen mittels eines Rasterkraftmikroskops ist eine Methode, die in den letzten Jahren durch technische Fortschritte immer interessanter geworden ist. Dementsprechend beschäftigen sich immer mehr Arbeitsgruppen mit dem Thema.[<a href='#LyXCite-sokolov2007atomic'><span class="bib-label">24</span></a>, <a href='#LyXCite-kuznetsova2007atomic'><span class="bib-label">16</span></a>, <a href='#LyXCite-radotic2012atomic'><span class="bib-label">21</span></a>, <a href='#LyXCite-ediss14839'><span class="bib-label">18</span></a>, <a href='#LyXCite-chiou2013influence'><span class="bib-label">6</span></a>, <a href='#LyXCite-pietuch2013mechanics'><span class="bib-label">19</span></a>]</div>
+
+<div class="standard"><a id='magicparlabel-423' />Gleichzeitig sind aber durch höhere Auflösungen und schnellere Messvorgänge die Datenmengen und damit die Anforderungen für die Auswertungen stark angestiegen.</div>
+
+<div class="standard"><a id='magicparlabel-424' />Durch die Vielzahl an unterschiedlichen Arbeitsgruppen wird es außerdem immer wichtiger, dass sie ihre Ergebnisse gegenseitig austauschen, nachvollziehen und verifizieren können.</div>
+
+<div class="standard"><a id='magicparlabel-425' />Das in dieser Arbeit entwickelte Programm bietet bei diesen beiden Herausforderungen eine Unterstützung. Inwiefern es aber noch weiterentwickelt werden muss und kann, um diese Aufgabe zu meistern, muss sich erst noch im Praxiseinsatz zeigen. Durch die Veröffentlichung als Open-Source und mit Python als Programmiersprache ist eine Weiterentwicklung ohne größere Hürden möglich.</div>
+
+<div class="standard"><a id='magicparlabel-426' />Obwohl also die in dieser Arbeit gemessenen Daten wegen der teils nicht erfolgreichen Extraktion voraussichtlich nicht alle verwendet werden können, so kann dennoch das Programm nach einer Verbesserung des Extraktionsprozesses dabei unterstützen, die neu gewonnenen und auch bereits bestehenden Messdaten schnell und einfach auszuwerten.</div>
+<h1 class="chapter"><a id='magicparlabel-427' /><span class="chapter_label">18</span> Danksagung</h1>
+<div class="standard"><a id='magicparlabel-428' />Zum Abschluss dieser Arbeit möchte ich mich noch bei allen Personen bedanken, die zum Gelingen dieser Arbeit beigetragen haben.</div>
+
+<div class="standard"><a id='magicparlabel-429' />Dies sind (in alphabetischer Reihenfolge):</div>
+
+<ul class="itemize"><a id='magicparlabel-430' /><li class="itemize_item">meiner Freundin Rebecca Blank, die mich motiviert hat, mein Physikstudium fortzusetzen</li>
+<li class="itemize_item">Prof. Dr. Kay Gottschalk für das spannende Thema, wertvollen Hinweisen dazu und ein offenes Ohr bei allen Fragen, und natürlich für die Begutachtung</li>
+<li class="itemize_item">Fenneke KleinJan für die Vorbereitung der Flusskammern sowie Einführung und Unterstützung bei der Extraktion und Präparation der Proben</li>
+<li class="itemize_item">Ines Martin für das Korrekturlesen dieser Arbeit</li>
+<li class="itemize_item">Ulla Nolte für die Präparation der Zellkulturen, beschichten der Flusskammern und einbringen der Zellen in die Flusskammern</li>
+<li class="itemize_item">Patrick Paul für die hervorragende Betreuung, Korrektur dieser Arbeit, Tipps und Tricks beim Umgang mit dem Rasterkraftmikroskop und viel Rat und Tat</li>
+<li class="itemize_item">Tobias Paust für die spontane Hilfe bei einigen Messungen mit dem Vorbereiten des Rasterkraftmikroskops</li>
+<li class="itemize_item">Fabian Port für die Hilfe bei der Handhabung des Rasterkraftmikroskops, Unterstützung bei der Auswertung mit DataProcessing und viele Tipps und Tricks</li>
+<li class="itemize_item">Tamara Stadter für die Hilfe bei allen organisatorischen Fragen</li>
+</ul>
+<div class="standard"><a id='magicparlabel-439' />und alle anderen, die ich unbeabsichtigter Weise vergessen habe.</div>
+
+<div class="standard"><a id='magicparlabel-440' /><h2 class='bibtex'>Literaturverzeichnis</h2><div class='bibtex'><div class='bibtexentry' id='LyXCite-alberts1983molecular'><span class='bibtexlabel'>1</span><span class='bibtexinfo'><span class="bib-author">Alberts, Bruce and Bray, D and Lewis, Julian and Raff, Martin and Roberts, Keitb and Watson, JD</span>, "<span class="bib-title">Molecular Biology of the</span>", <i><span class="bib-journal">Cell</span></i> (<span class="bib-year">1983</span>).</span></div>
+<div class='bibtexentry' id='LyXCite-PhysRevLett_56_930'><span class='bibtexlabel'>2</span><span class='bibtexinfo'><span class="bib-author">Binnig, G. and Quate, C. F. and Gerber, Ch.</span>, "<span class="bib-title">Atomic Force Microscope</span>", <i><span class="bib-journal">Phys. Rev. Lett.</span></i> (<span class="bib-year">1986</span>), <span class="bib-pages">930--933</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-butt2005force'><span class='bibtexlabel'>3</span><span class='bibtexinfo'><span class="bib-author">Butt, Hans-Jürgen and Cappella, Brunero and Kappl, Michael</span>, "<span class="bib-title">Force measurements with the atomic force microscope: Technique, interpretation and applications</span>", <i><span class="bib-journal">Surface science reports</span></i> (<span class="bib-year">2005</span>), <span class="bib-pages">1--152</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-cappella1999force'><span class='bibtexlabel'>4</span><span class='bibtexinfo'><span class="bib-author">Cappella, Brunero and Dietler, Giovanni</span>, "<span class="bib-title">Force-distance curves by atomic force microscopy</span>", <i><span class="bib-journal">Surface science reports</span></i> (<span class="bib-year">1999</span>), <span class="bib-pages">1--104</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-chang2014automated'><span class='bibtexlabel'>5</span><span class='bibtexinfo'><span class="bib-author">Chang, Yow-Ren and Raghunathan, Vijay Krishna and Garland, Shaun P and Morgan, Joshua T and Russell, Paul and Murphy, Christo...</span>, "<span class="bib-title">Automated AFM force curve analysis for determining elastic modulus of biomaterials and biological samples</span>", <i><span class="bib-journal">Journal of the Mechanical Behavior of Biomedical Materials</span></i> (<span class="bib-year">2014</span>).</span></div>
+<div class='bibtexentry' id='LyXCite-chiou2013influence'><span class='bibtexlabel'>6</span><span class='bibtexinfo'><span class="bib-author">Chiou, Yu-Wei and Lin, Hsiu-Kuan and Tang, Ming-Jer and Lin, Hsi-Hui and Yeh, Ming-Long</span>, "<span class="bib-title">The influence of physical and physiological cues on atomic force microscopy-based cell stiffness assessment</span>", <i><span class="bib-journal">PloS one</span></i> (<span class="bib-year">2013</span>), <span class="bib-pages">e77384</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-__content_aip_journal_cise_11_1_10_1109_MCSE_2009_14'><span class='bibtexlabel'>7</span><span class='bibtexinfo'><span class="bib-author">Fomel, Sergey and Claerbout, Jon F.</span>, "<span class="bib-title">Reproducible Research</span>", <i><span class="bib-journal">Computing in Science and Engineering</span></i> (<span class="bib-year">2009</span>), <span class="bib-pages">5-7</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-freeman2005biological'><span class='bibtexlabel'>8</span><span class='bibtexinfo'><span class="bib-author">Freeman, S and Hamilton, H</span>, "<span class="bib-title">Biological science</span>", <span class="bib-publisher">Upper Saddle River, NJ [etc.]: Pearson Prentice Hall</span> (<span class="bib-year">2005</span>).</span></div>
+<div class='bibtexentry' id='LyXCite-gigler'><span class='bibtexlabel'>9</span><span class='bibtexinfo'><span class="bib-author">Alexander Gigler</span>, "<span class="bib-title">Dynamic investigation of polymeric materials: reproducible data acquisition and profound mechanical analysis</span>" (<span class="bib-year">2006</span>).</span></div>
+<div class='bibtexentry' id='LyXCite-hertz1882ueber'><span class='bibtexlabel'>10</span><span class='bibtexinfo'><span class="bib-author">Hertz, Heinrich</span>, "<span class="bib-title">Ueber die Berührung fester elastischer Körper.</span>", <i><span class="bib-journal">Journal für die reine und angewandte Mathematik</span></i> (<span class="bib-year">1882</span>), <span class="bib-pages">156--171</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-ikai2010bewegung'><span class='bibtexlabel'>11</span><span class='bibtexinfo'><span class="bib-author">Ikai, Atsushi</span>, "<span class="bib-title">Bewegung in der Nanobiologie</span>", <i><span class="bib-journal">Einführung in die Nanobiomechanik: Bildgebung und Messung durch Rasterkraftmikroskopie</span></i> (<span class="bib-year">2010</span>), <span class="bib-pages">143--151</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-qimode'><span class='bibtexlabel'>12</span><span class='bibtexinfo'><span class="bib-author">JPK Instruments</span>, "<span class="bib-title">QI mode - Quantitative Imaging with the NanoWizard 3 AFM</span>", <i><span class="bib-journal">Technical Note</span></i>.</span></div>
+<div class='bibtexentry' id='LyXCite-jones2001scipy'><span class='bibtexlabel'>13</span><span class='bibtexinfo'><span class="bib-author">Jones, Eric and Oliphant, Travis and Peterson, Pearu</span>, "<span class="bib-title">SciPy: Open source scientific tools for Python</span>", <i><span class="bib-journal">http://www. scipy. org/</span></i> (<span class="bib-year">2001</span>).</span></div>
+<div class='bibtexentry' id='LyXCite-klapetek2004gwyddion'><span class='bibtexlabel'>14</span><span class='bibtexinfo'><span class="bib-author">Klapetek, Petr and Necas, David and Anderson, Christopher</span>, "<span class="bib-title">Gwyddion user guide</span>", <i><span class="bib-journal">Online http://gwyddion. net</span></i> (<span class="bib-year">2004</span>).</span></div>
+<div class='bibtexentry' id='LyXCite-0957_0233_25_4_044009'><span class='bibtexlabel'>15</span><span class='bibtexinfo'><span class="bib-author">P Klapetek and D Necas</span>, "<span class="bib-title">Independent analysis of mechanical data from atomic force microscopy</span>", <i><span class="bib-journal">Measurement Science and Technology</span></i> (<span class="bib-year">2014</span>), <span class="bib-pages">044009</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-kuznetsova2007atomic'><span class='bibtexlabel'>16</span><span class='bibtexinfo'><span class="bib-author">Kuznetsova, Tatyana G and Starodubtseva, Maria N and Yegorenkov, Nicolai I and Chizhik, Sergey A and Zhdanov, Renat I</span>, "<span class="bib-title">Atomic force microscopy probing of cell elasticity</span>", <i><span class="bib-journal">Micron</span></i> (<span class="bib-year">2007</span>), <span class="bib-pages">824--833</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-nevcas2012gwyddion'><span class='bibtexlabel'>17</span><span class='bibtexinfo'><span class="bib-author">Nečas, David and Klapetek, Petr</span>, "<span class="bib-title">Gwyddion: an open-source software for SPM data analysis</span>", <i><span class="bib-journal">Central European Journal of Physics</span></i> (<span class="bib-year">2012</span>), <span class="bib-pages">181--188</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-ediss14839'><span class='bibtexlabel'>18</span><span class='bibtexinfo'><span class="bib-author">Jan Opfer</span>, "<span class="bib-title">Single-molecule force spectroscopy studies of integrin-mediated cell signaling</span>", <span class="bib-publisher">Ludwig-Maximilians-Universität München</span> (<span class="bib-year">2012</span>).</span></div>
+<div class='bibtexentry' id='LyXCite-pietuch2013mechanics'><span class='bibtexlabel'>19</span><span class='bibtexinfo'><span class="bib-author">Pietuch, Anna and Janshoff, Andreas</span>, "<span class="bib-title">Mechanics of spreading cells probed by atomic force microscopy</span>", <i><span class="bib-journal">Open biology</span></i> (<span class="bib-year">2013</span>), <span class="bib-pages">130084</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-potters2014measuring'><span class='bibtexlabel'>20</span><span class='bibtexinfo'><span class="bib-author">Potters, Wouter V and Marquering, Henk A and VanBavel, Ed and Nederveen, Aart J</span>, "<span class="bib-title">Measuring Wall Shear Stress Using Velocity-Encoded MRI</span>", <i><span class="bib-journal">Current Cardiovascular Imaging Reports</span></i> (<span class="bib-year">2014</span>), <span class="bib-pages">1--12</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-radotic2012atomic'><span class='bibtexlabel'>21</span><span class='bibtexinfo'><span class="bib-author">Radotić, Ksenija and Roduit, Charles and Simonović, Jasna and Hornitschek, Patricia and Fankhauser, Christian and Mut...</span>, "<span class="bib-title">Atomic Force Microscopy Stiffness Tomography on Living Arabidopsis thaliana Cells Reveals the Mechanical Properties of Surfac...</span>", <i><span class="bib-journal">Biophysical journal</span></i> (<span class="bib-year">2012</span>), <span class="bib-pages">386--394</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-ImageJ'><span class='bibtexlabel'>22</span><span class='bibtexinfo'><span class="bib-author">Rasband, W. S.</span>, "<span class="bib-title">ImageJ</span>" (<span class="bib-year">1997</span>).</span></div>
+<div class='bibtexentry' id='LyXCite-schiller2013beta1'><span class='bibtexlabel'>23</span><span class='bibtexinfo'><span class="bib-author">Schiller, Herbert B and Hermann, Michaela-Rosemarie and Polleux, Julien and Vignaud, Timothée and Zanivan, Sara and Fried...</span>, "<span class="bib-title">$\beta$1-and $\alpha$v-class integrins cooperate to regulate myosin II during rigidity sensing of fibronectin-based microenvi...</span>", <i><span class="bib-journal">Nature cell biology</span></i> (<span class="bib-year">2013</span>), <span class="bib-pages">625--636</span>.</span></div>
+<div class='bibtexentry' id='LyXCite-sokolov2007atomic'><span class='bibtexlabel'>24</span><span class='bibtexinfo'><span class="bib-author">Sokolov, Igor</span>, "<span class="bib-title">Atomic force microscopy in cancer cell research</span>", <i><span class="bib-journal">Cancer Nanotechnology</span></i> (<span class="bib-year">2007</span>), <span class="bib-pages">1--17</span>.</span></div>
+</div></div>
+</body>
+</html>
