@@ -156,7 +156,8 @@ def fit_all(nominal_height, force):
     cperr = np.empty(force.shape[:2])
     E = np.empty(force.shape[:2])
     Eerr = np.empty(force.shape[:2])
-    def fit_callback((index, (popt, perr))):
+    def fit_callback(parameters):
+        index, (popt, perr) = parameters
         cp[index] = popt[0]
         cperr[index] = perr[0]
         E[index] = popt[1]
