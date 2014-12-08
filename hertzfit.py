@@ -148,10 +148,10 @@ def subtract_baseline(xdata, ydata):
                                            ydata[:len(xdata)*.4])
     return ydata - line(xdata, *baseline)
 
-def fit_index(index, xdata, ydata):
-    return index, fit(xdata, ydata)
+def fit_index(index, xdata, ydata, depth, setpoint):
+    return index, fit(xdata, ydata, depth, setpoint)
 
-def fit_all(nominal_height, force):
+def fit_all(nominal_height, force, depth=None, setpoint=None):
     cp = np.empty(force.shape[:2])
     cperr = np.empty(force.shape[:2])
     E = np.empty(force.shape[:2])
@@ -165,7 +165,7 @@ def fit_all(nominal_height, force):
 
     pool = multiprocessing.Pool()
     for index in np.ndindex(E.shape):
-        pool.apply_async(fit_index, (index, nominal_height[index], force[index]), callback=fit_callback)
+        pool.apply_async(fit_index, (index, nominal_height[index], force[index], depth, setpoint), callback=fit_callback)
 
     pool.close()
     pool.join()
