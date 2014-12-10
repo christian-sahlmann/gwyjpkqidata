@@ -29,25 +29,27 @@ def interactive(nominal_height, force):
             E = []
             Eerr = []
             for i in range(2, len(xdata)-fit_region_start):
-                popt, perr = fit(xdata, ydata, i)
+                popt, perr = fit(xdata, ydata, depthcount=i)
                 cp.append(popt[0])
                 E.append(popt[1])
                 Eerr.append(perr[1])
                 if i % 50 == 0:
+                    depth = xdata[fit_region_start] - xdata[fit_region_start:fit_region_start+i-1]
+
                     ax2.clear()
-                    ax2.plot(E)
+                    ax2.plot(depth, E)
                     ax2.xaxis.set_label_text('Indentation depth')
                     ax2.yaxis.set_label_text('Young modulus')
 
                     ax3.clear()
-                    ax3.plot(Eerr)
+                    ax3.plot(depth, Eerr)
                     ax3.xaxis.set_label_text('Indentation depth')
                     ax3.yaxis.set_label_text('Young modulus standard error')
 
                     plt.draw()
                     plt.pause(0.01)
 
-        elif event.inaxes == ax2:
+        elif event.inaxes in [ax2, ax3]:
             indentation_depth = event.xdata
             xdata = nominal_height[point]
             ydata = force[point]
@@ -55,7 +57,7 @@ def interactive(nominal_height, force):
             fit_start = find_fit_region_start(subtract_baseline(xdata, ydata))
             ax1.clear()
             ax1.plot(xdata, subtract_baseline(xdata, ydata))
-            ax1.plot(xdata[fit_start:fit_start+indentation_depth], hertz(xdata[fit_start:fit_start+indentation_depth], *popt))
+            ax1.plot(xdata[fit_start:], hertz(xdata[fit_start:], *popt))
 
         elif not event.inaxes:
             ax1.clear()
@@ -118,21 +120,23 @@ def find_fit_region_start(data):
         fit_region_start = 0
     return fit_region_start
 
-def fit(xdata, ydata, depth=None, setpoint=None):
+def fit(xdata, ydata, depth=None, setpoint=None, depthcount=None):
     ydata = subtract_baseline(xdata, ydata)
     fit_region_start = find_fit_region_start(ydata)
     approximate_cp = xdata[fit_region_start]
 
-    if not depth:
-        depth = len(xdata) - fit_region_start
-
+    fit_region_end = len(xdata)
+    if depthcount:
+        fit_region_end = min([fit_region_end, fit_region_start+depthcount])
+    if depth:
+        fit_region_end = min([fit_region_end, np.argwhere(xdata < xdata[fit_region_start]-depth)[0,0]])
     if setpoint:
-        depth = np.min(depth, fit_region_start - (np.argwhere(ydata > setpoint)[0,0]))
+        fit_region_end = min([fit_region_end, np.argwhere(ydata > setpoint)[0,0]])
 
     try:
         popt, pcov = scipy.optimize.curve_fit(hertz,
-                                              xdata[fit_region_start : fit_region_start+depth],
-                                              ydata[fit_region_start : fit_region_start+depth],
+                                              xdata[fit_region_start : fit_region_end],
+                                              ydata[fit_region_start : fit_region_end],
                                               (approximate_cp, 0))
         perr = np.sqrt(np.diag(pcov))
     except RuntimeError:
