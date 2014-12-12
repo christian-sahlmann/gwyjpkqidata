@@ -57,7 +57,7 @@ def interactive(nominal_height, force):
             fit_start = find_fit_region_start(subtract_baseline(xdata, ydata))
             ax1.clear()
             ax1.plot(xdata, subtract_baseline(xdata, ydata))
-            ax1.plot(xdata[fit_start:], hertz(xdata[fit_start:], *popt))
+            ax1.plot(xdata, hertz(xdata, *popt))
 
         elif not event.inaxes:
             ax1.clear()
