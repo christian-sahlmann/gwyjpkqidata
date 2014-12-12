@@ -21,8 +21,9 @@ def interactive(nominal_height, force):
             ydata = force[point]
             ax1.plot(xdata, subtract_baseline(xdata, ydata))
 
-            popt, _ = fit(xdata, ydata)
-            ax1.plot(xdata, hertz(xdata, *popt))
+            (cp, E), _ = fit(xdata, ydata)
+            ax1.plot(xdata, hertz(xdata, cp, E))
+            ax1.plot(cp, hertz(cp, cp, E), '.')
 
             fit_region_start = find_fit_region_start(subtract_baseline(xdata, ydata))
             cp = []
@@ -53,11 +54,11 @@ def interactive(nominal_height, force):
             indentation_depth = event.xdata
             xdata = nominal_height[point]
             ydata = force[point]
-            popt, perr = fit(xdata, ydata, indentation_depth)
-            fit_start = find_fit_region_start(subtract_baseline(xdata, ydata))
+            (cp, E), perr = fit(xdata, ydata, indentation_depth)
             ax1.clear()
             ax1.plot(xdata, subtract_baseline(xdata, ydata))
-            ax1.plot(xdata, hertz(xdata, *popt))
+            ax1.plot(xdata, hertz(xdata, cp, E))
+            ax1.plot(cp, hertz(cp, cp, E), '.')
 
         elif not event.inaxes:
             ax1.clear()
@@ -94,6 +95,7 @@ def interactive(nominal_height, force):
                 ydata = force[point]
                 ax1.plot(xdata, subtract_baseline(xdata, ydata))
                 ax1.plot(xdata, hertz(xdata, cp[point], E[point]))
+                ax1.plot(cp[point], hertz(cp[point], cp[point], E[point]), '.')
             else:
                 ax1.clear()
             plt.draw()
