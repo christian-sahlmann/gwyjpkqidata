@@ -129,7 +129,10 @@ def fit(xdata, ydata, depth=None, setpoint=None, depthcount=None):
     if depthcount:
         fit_region_end = min([fit_region_end, fit_region_start+depthcount])
     if depth:
-        fit_region_end = min([fit_region_end, np.argwhere(xdata < xdata[fit_region_start]-depth)[0,0]])
+        try:
+            fit_region_end = min([fit_region_end, np.argwhere(xdata < xdata[fit_region_start]-depth)[0,0]])
+        except IndexError:
+            pass
     if setpoint:
         fit_region_end = min([fit_region_end, np.argwhere(ydata > setpoint)[0,0]])
 
