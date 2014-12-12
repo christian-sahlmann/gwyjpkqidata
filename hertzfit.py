@@ -12,6 +12,8 @@ import scipy.optimize
 matplotlib.rcParams['axes.formatter.limits'] = [-4, 4]
 matplotlib.rcParams['image.cmap'] = 'afmhot'
 
+indentation_depth = None
+
 def interactive(nominal_height, force):
     def on_click(event):
         if event.inaxes == ax0:
@@ -51,6 +53,7 @@ def interactive(nominal_height, force):
                     plt.pause(0.01)
 
         elif event.inaxes in [ax2, ax3]:
+            global indentation_depth
             indentation_depth = event.xdata
             xdata = nominal_height[point]
             ydata = force[point]
@@ -76,7 +79,7 @@ def interactive(nominal_height, force):
     fig.canvas.mpl_connect('button_press_event', on_click)
 
     def fit_all_clicked(event):
-        cp, cperr, E, Eerr = fit_all(nominal_height, force)
+        cp, cperr, E, Eerr = fit_all(nominal_height, force, depth=indentation_depth)
         fig, ((ax0, ax1), (ax3, ax5), (ax2, ax4)) = plt.subplots(3, 2)
         im0 = ax0.imshow(np.nanmin(nominal_height, 2))
         im2 = ax2.imshow(E)
