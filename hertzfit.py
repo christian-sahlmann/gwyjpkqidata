@@ -184,6 +184,16 @@ def fit_all(nominal_height, force, depth=None, setpoint=None):
 
     return cp, cperr, E, Eerr
 
+plugin_type = "VOLUME"
+plugin_menu = "/Hertz fit"
+def run():
+    import gwy,  site
+    site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
+    import gwyutils
+    force = gwyutils.brick_data_as_array(gwy.data['/brick/0'])
+    nominal_height = gwyutils.brick_data_as_array(gwy.data['/brick/1'])
+    interactive(nominal_height, force)
+
 if __name__ == "__main__":
     jpkqidata = JpkQiData(sys.argv[1])
     extend = jpkqidata.segment('extend')
