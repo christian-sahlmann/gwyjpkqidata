@@ -8,7 +8,7 @@ import zipfile
 plugin_type = "FILE"
 plugin_desc = "JPK quantitative imaging data"
 
-class Channel(numpy.ndarray):
+class Channel:
     def get_coefficients(self, conversion):
         """
         When there are no coefficients, the data should not change when recalibrating
@@ -43,29 +43,35 @@ class Channel(numpy.ndarray):
 
     def calibrate(self, conversion):
         multiplier, offset = self.get_coefficients(conversion)
-        return (self + offset) * multiplier
+        return (self.data() + offset) * multiplier
 
-class Segment:
-    def channel(self, name):
-        channel = numpy.empty((self.ilength, self.jlength, self.num_points)).view(Channel)
-        channel.fill(float('nan'))
-
-        channel.shared_data = self.shared_data
-        channel.lcd_info = int(self.header['channel.{}.lcd-info.*'.format(name)])
-        offset     = float(self.shared_data['lcd-info.{}.encoder.scaling.offset'.format(channel.lcd_info)])
-        multiplier = float(self.shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(channel.lcd_info)])
-
+    def data(self):
+        data = numpy.empty((self.ilength, self.jlength, self.num_points))
+        data.fill(float('nan'))
         for i, j in numpy.ndindex(self.ilength, self.jlength):
             index = j+(self.ilength-1-i)*self.jlength
             try:
-                channel_file = self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, self.number, name))
-                channel_data = numpy.frombuffer(channel_file,
-                                                numpy.dtype('>i'))
+                channel_file = self.zipfile.read('index/{}/segments/{}/channels/{}.dat'.format(index, self.segment_number, self.name))
+                channel_data = numpy.frombuffer(channel_file, numpy.dtype('>i'))
                 length = len(channel_data)
-                channel[i, j, :length] = channel_data*multiplier + offset
+                data[i, j, :length] = channel_data*self.multiplier + self.offset
             except KeyError:
                 pass
+        return data
 
+class Segment:
+    def channel(self, name):
+        channel = Channel()
+        channel.name = name
+        channel.zipfile = self.zipfile
+        channel.segment_number = self.number
+        channel.ilength = self.ilength
+        channel.jlength = self.jlength
+        channel.num_points = self.num_points
+        channel.shared_data = self.shared_data
+        channel.lcd_info = int(self.header['channel.{}.lcd-info.*'.format(name)])
+        channel.offset = float(self.shared_data['lcd-info.{}.encoder.scaling.offset'.format(channel.lcd_info)])
+        channel.multiplier = float(self.shared_data['lcd-info.{}.encoder.scaling.multiplier'.format(channel.lcd_info)])
         return channel
 
 class JpkQiDataException(Exception):
