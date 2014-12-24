@@ -9,7 +9,7 @@ plugin_type = "FILE"
 plugin_desc = "JPK quantitative imaging data"
 
 class Channel(numpy.ndarray):
-    def get_coefficients(self, lcd_info, conversion):
+    def get_coefficients(self, conversion):
         """
         When there are no coefficients, the data should not change when recalibrating
         >>> channel = Channel(1)
@@ -31,18 +31,18 @@ class Channel(numpy.ndarray):
         >>> channel.get_coefficients(0, 'force')
         (8.0, 5.5)
         """
-        prefix = 'lcd-info.{}.conversion-set.conversion.{}.'.format(lcd_info, conversion)
+        prefix = 'lcd-info.{}.conversion-set.conversion.{}.'.format(self.lcd_info, conversion)
         try:
             base_calibration_slot = self.shared_data[prefix + 'base-calibration-slot']
             multiplier = float(self.shared_data[prefix + 'scaling.multiplier'])
             offset = float(self.shared_data[prefix + 'scaling.offset'])
-            base_multiplier, base_offset = self.get_coefficients(lcd_info, base_calibration_slot)
+            base_multiplier, base_offset = self.get_coefficients(base_calibration_slot)
             return base_multiplier * multiplier, base_offset + offset / base_multiplier
         except KeyError:
             return 1.0, 0.0
 
     def calibrate(self, conversion):
-        multiplier, offset = self.get_coefficients(self.lcd_info, conversion)
+        multiplier, offset = self.get_coefficients(conversion)
         return (self + offset) * multiplier
 
 class Segment:
@@ -132,13 +132,12 @@ class JpkQiData:
         config.readfp(StringIO('[DEFAULT]\n'+self.zipfile.read(path).decode()))
         return config.defaults()
 
-
 def detect_by_name(filename):
     """
     When we have a QI file, we are 100% sure
     >>> detect_by_name("test.jpk-qi-data")
     100
-    
+
     A text file is not a QI file
     >>> detect_by_name("test.txt")
     0
@@ -153,11 +152,11 @@ def detect_by_content(filename, head, tail, filesize):
     Our test file should be 100% a QI file
     >>> detect_by_content(file_path, None, None, None)
     100
-    
+
     A nonexisting file or text file is not a QI file
     >>> detect_by_content("test.txt", None, None, None)
     0
-    
+
     An regular zip file is not a QI file
     >>> import os, tempfile
     >>> handle, file_path = tempfile.mkstemp()
@@ -176,7 +175,7 @@ def detect_by_content(filename, head, tail, filesize):
 def load(filename, mode=None):
     """
     >>> container = load(file_path)
-    
+
     Check if the channel has proper content
     >>> container['/0/data'].get_val(0,0)
     0.0
@@ -194,20 +193,20 @@ def load(filename, mode=None):
     'V'
     >>> brick.get_val(0,0,0)
     3.0
-    
+
     If the channel data is too short to fill the brick, it gets set to NaN
     >>> brick.get_val(0,0,1)
     nan
-    
+
     Check if the preview has proper content
     >>> preview = container['/brick/0/preview']
     >>> preview.get_val(0,0)
     3.0
-    
+
     The title should be set correctly
     >>> container['/brick/0/title']
     'extend vDeflection'
-    
+
     The metadata should be initialized
     >>> meta = container['/brick/0/meta']
     >>> meta['distance.name']
@@ -217,66 +216,64 @@ def load(filename, mode=None):
     >>> container['/brick/2/meta']['distance.name']
     'Distance'
     """
-    import gwy, site
+    import gtk, gwy, site
     site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
     import gwyutils
-    main_window = gwy.gwy_app_main_window_get()
-    if main_window:
-        gwy.gwy_app_wait_start(main_window, plugin_desc)
     jpkqidata = JpkQiData(filename)
+
+    treeStore = gtk.TreeStore(str, str, str)
+    for segmentName in jpkqidata.segment_styles:
+        segmentIter = treeStore.append(None, [segmentName, None, None])
+        segment = jpkqidata.segment(segmentName)
+        for channelName in segment.header['channels.list'].split(' '):
+            channelIter = treeStore.append(segmentIter, [channelName, None, None])
+            channel = segment.channel(channelName)
+            for conversion in jpkqidata.shared_data['lcd-info.{}.conversion-set.conversions.list'.format(channel.lcd_info)].split():
+                conversionName = jpkqidata.shared_data['lcd-info.{}.conversion-set.conversion.{}.name'.format(channel.lcd_info, conversion)]
+                try:
+                    unit = jpkqidata.shared_data['lcd-info.{}.conversion-set.conversion.{}.scaling.unit.unit'.format(channel.lcd_info, conversion)]
+                except KeyError:
+                    unit = None
+                treeStore.append(channelIter, [conversionName, unit, conversion])
+
+    treeView = gtk.TreeView(treeStore)
+    treeView.append_column(gtk.TreeViewColumn('Conversion', gtk.CellRendererText(), text=0))
+    treeView.append_column(gtk.TreeViewColumn('Unit', gtk.CellRendererText(), text=1))
+    treeView.expand_all()
+    selection = treeView.get_selection()
+    selection.set_mode(gtk.SELECTION_MULTIPLE)
+    selection.set_select_function(lambda path: len(path)==3)
+    dialog = gtk.Dialog(plugin_desc, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                              gtk.STOCK_OK, gtk.RESPONSE_OK))
+    dialog.vbox.add(treeView)
+    dialog.show_all()
     container = gwy.Container()
-    
-    data_image = PIL.Image.open(io.BytesIO(jpkqidata.zipfile.read('data-image.jpk-qi-image')))
-    data_image.load()
-    try:
-        while True:
-            index = data_image.tell()
-            field = gwy.DataField(data_image.size[0], data_image.size[1], data_image.size[0], data_image.size[1], False)
-            array = gwyutils.data_field_data_as_array(field)
-            array[:] = numpy.array(data_image.getdata()).reshape(data_image.size)
-            container['/{}/data'.format(index)] = field
-            data_image.seek(index+1)
-            data_image.mode = 'I'
-    except EOFError:
-        pass
-    
-    for segment_progress, (segment_style, segmentnumber) in enumerate(jpkqidata.segment_styles.iteritems()):
-        
-        segment_header = jpkqidata.read_properties('index/0/segments/{}/segment-header.properties'.format(segmentnumber))
-        channels = segment_header['channels.list'].split(' ')
-        for channelname in channels:
-            lcd_info = int(segment_header['channel.{}.lcd-info.*'.format(channelname)])
-            
+    if dialog.run() == gtk.RESPONSE_OK:
+        treeStore, paths = selection.get_selected_rows()
+        for bricknumber, path in enumerate(paths):
+            segment_style = treeStore[path[:-2]][0]
             segment = jpkqidata.segment(segment_style)
-            brick_data = segment.channel(channelname)
+            channelname = treeStore[path[:-1]][0]
+            channel = segment.channel(channelname)
+            conversion = treeStore[path][2]
+            brick_data = channel.calibrate(conversion)
             ilength, jlength, num_points = brick_data.shape
             brick = gwy.Brick(ilength, jlength, num_points, jpkqidata.ulength, jpkqidata.vlength, segment.duration, False)
             gwyutils.brick_set_data(brick, brick_data)
-            
+
             brick.get_si_unit_x().set_from_string(jpkqidata.grid_unit)
             brick.get_si_unit_y().set_from_string(jpkqidata.grid_unit)
             brick.get_si_unit_z().set_from_string('s')
-            brick.get_si_unit_w().set_from_string(jpkqidata.shared_data['lcd-info.{}.unit.unit'.format(lcd_info)])
-            
-            bricknumber = lcd_info + len(channels)*segmentnumber
+            unit = treeStore[path][1]
+            if unit:
+                brick.get_si_unit_w().set_from_string(unit)
+
             container["/brick/{}".format(bricknumber)] = brick
             preview = gwy.DataField(ilength, jlength, ilength, jlength, False)
             brick.min_plane(preview, 0, 0, 0, ilength, jlength, -1, True)
             container["/brick/{}/preview".format(bricknumber)] = preview
-            container["/brick/{}/title".format(bricknumber)] = "{} {}".format(segment_style, channelname)
-        
-            meta = gwy.Container()
-            for key in jpkqidata.shared_data:
-                prefix = 'lcd-info.{}.conversion-set.conversion.'.format(lcd_info)
-                if key.startswith(prefix):
-                    meta.set_string_by_name(key[len(prefix):], jpkqidata.shared_data[key])
-            container["/brick/{}/meta".format(bricknumber)] = meta
-
-            if main_window:
-                gwy.gwy_app_wait_set_fraction(1.0 * (segment_progress*len(channels) + lcd_info) / len(jpkqidata.segment_styles) / len(channels))
-
-    if main_window:
-        gwy.gwy_app_wait_finish()
+            container["/brick/{}/title".format(bricknumber)] = "{} {} {}".format(segment_style, channelname, conversion)
+    dialog.destroy()
     return container
 
 if __name__ == "__main__":
@@ -284,7 +281,7 @@ if __name__ == "__main__":
     import os
     import tempfile
     import textwrap
-    
+
     # create test file
     handle, file_path = tempfile.mkstemp()
     os.close(handle)
@@ -341,9 +338,9 @@ if __name__ == "__main__":
     PIL.Image.new('1', (1,1)).save(data_image, 'TIFF')
     f.writestr('data-image.jpk-qi-image', data_image.getvalue())
     f.close()
-    
+
     # run tests
     doctest.testmod()
-    
+
     # remove testfile
     os.remove(file_path)
