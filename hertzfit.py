@@ -9,11 +9,13 @@ def hertz(x, xc, E, Rc=1e-6, nu=.5):
 def line(x, slope, offset):
     return x*slope + offset
 
-def find_fit_region_start(data):
+def threshold_level(data):
     noise_level = data[ : len(data) * .4 ].std()
-    threshold_level = 5 * noise_level
+    return 5 * noise_level
+
+def find_fit_region_start(data):
     try:
-        fit_region_start = np.argwhere(data > threshold_level)[0,0]
+        fit_region_start = np.argwhere(data > threshold_level(data))[0,0]
     except IndexError:
         fit_region_start = 0
     return fit_region_start
@@ -140,7 +142,7 @@ def map(togglebutton, title):
         force = gwyutils.brick_data_as_array(force_brick)[i,j]
         height = gwyutils.brick_data_as_array(height_brick)[i,j]
 
-        def add_curve(title, xdata, ydata, description=None):
+        def add_curve(title, xdata, ydata, description=None, mode=2, line_style=gtk.gdk.LINE_SOLID):
             if title not in windows:
                 return
             xdata = np.array(xdata)
@@ -148,7 +150,8 @@ def map(togglebutton, title):
             mask = np.isfinite(ydata)
             graphCurveModel = gwy.GraphCurveModel()
             graphCurveModel.set_data(xdata[mask].tolist(), ydata[mask].tolist(), len(xdata[mask]))
-            graphCurveModel.props.mode = 2  # GWY_GRAPH_CURVE_LINE
+            graphCurveModel.props.mode = mode
+            graphCurveModel.props.line_style = line_style
             if description:
                 graphCurveModel.props.description = description + ' ' + coords
             else:
@@ -156,9 +159,11 @@ def map(togglebutton, title):
             windows[title].get_graph().get_model().add_curve(graphCurveModel)
 
         (cp, E), _ = fit(height, force)
+        threshold = threshold_level(force)
         add_curve('Force', height, subtract_baseline(height, force), 'data')
         add_curve('Force', height, hertz(height, cp, E), 'fit')
-        add_curve('Force', [cp], [hertz(cp, cp, E)], 'contact point')
+        add_curve('Force', [cp], [hertz(cp, cp, E)], 'contact point', mode=3)
+        add_curve('Force', [height.min(), height.max()], [threshold, threshold], 'threshold level', line_style=gtk.gdk.LINE_ON_OFF_DASH)
 
         fit_region_start = find_fit_region_start(subtract_baseline(height, force))
         cp = []
