@@ -109,7 +109,7 @@ def on_response(dialog, response_id):
         return
     force = gwyutils.brick_data_as_array(force_brick)
     height = gwyutils.brick_data_as_array(height_brick)
-    cp, cperr, E, Eerr = fit_all(height, force)
+    cp, cperr, E, Eerr = fit_all(height, force, depth=indentation_depth)
     def add_datafield(index, data, title, unit):
         datafield = gwy.DataField(height_brick.get_xres(), height_brick.get_yres(),
                                   height_brick.get_xreal(), height_brick.get_yreal(), False)
@@ -193,8 +193,11 @@ def map(togglebutton, title):
 
 windows = {}
 points = []
+indentation_depth = None
 def toggle_window(togglebutton, title, unit, status, label_bottom):
     def on_selection_finished(selection):
+        global indentation_depth
+        indentation_depth = selection.get_data()[0]
         for title, window in windows.iteritems():
             window.get_graph().get_area().get_selection(5).set_data(1, selection.get_data())
         for num, (x, y) in enumerate(points):
@@ -202,7 +205,7 @@ def toggle_window(togglebutton, title, unit, status, label_bottom):
             j = force_brick.rtoj(y)
             force = gwyutils.brick_data_as_array(force_brick)[i,j]
             height = gwyutils.brick_data_as_array(height_brick)[i,j]
-            (cp, E), _ = fit(height, force, depth=selection.get_data()[0])
+            (cp, E), _ = fit(height, force, depth=indentation_depth)
             model = windows['Force'].get_graph().get_model()
             model.get_curve(num*3 + 1).set_data(height.tolist(), hertz(height, cp, E).tolist(), len(force))
             model.get_curve(num*3 + 2).set_data([cp], [hertz(cp, cp, E)], 1)
