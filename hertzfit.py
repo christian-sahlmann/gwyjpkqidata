@@ -1,113 +1,6 @@
-import site, os
-site.addsitedir(os.path.expanduser('~/.gwyddion/pygwy'))
-
-from jpkqidata import JpkQiData
-import matplotlib
-import matplotlib.pyplot as plt
 import multiprocessing
 import numpy as np
-import sys
 import scipy.optimize
-
-matplotlib.rcParams['axes.formatter.limits'] = [-4, 4]
-matplotlib.rcParams['image.cmap'] = 'afmhot'
-
-indentation_depth = None
-
-def interactive(nominal_height, force):
-    def on_click(event):
-        if event.inaxes == ax0:
-            global point
-            point = event.ydata, event.xdata
-            xdata = nominal_height[point]
-            ydata = force[point]
-            ax1.plot(xdata, subtract_baseline(xdata, ydata))
-
-            (cp, E), _ = fit(xdata, ydata)
-            ax1.plot(xdata, hertz(xdata, cp, E))
-            ax1.plot(cp, hertz(cp, cp, E), '.')
-
-            fit_region_start = find_fit_region_start(subtract_baseline(xdata, ydata))
-            cp = []
-            E = []
-            Eerr = []
-            for i in range(2, len(xdata)-fit_region_start):
-                popt, perr = fit(xdata, ydata, depthcount=i)
-                cp.append(popt[0])
-                E.append(popt[1])
-                Eerr.append(perr[1])
-                if i % 50 == 0:
-                    depth = xdata[fit_region_start] - xdata[fit_region_start:fit_region_start+i-1]
-
-                    ax2.clear()
-                    ax2.plot(depth, E)
-                    ax2.xaxis.set_label_text('Indentation depth')
-                    ax2.yaxis.set_label_text('Young modulus')
-
-                    ax3.clear()
-                    ax3.plot(depth, Eerr)
-                    ax3.xaxis.set_label_text('Indentation depth')
-                    ax3.yaxis.set_label_text('Young modulus standard error')
-
-                    plt.draw()
-                    plt.pause(0.01)
-
-        elif event.inaxes in [ax2, ax3]:
-            global indentation_depth
-            indentation_depth = event.xdata
-            xdata = nominal_height[point]
-            ydata = force[point]
-            (cp, E), perr = fit(xdata, ydata, indentation_depth)
-            ax1.clear()
-            ax1.plot(xdata, subtract_baseline(xdata, ydata))
-            ax1.plot(xdata, hertz(xdata, cp, E))
-            ax1.plot(cp, hertz(cp, cp, E), '.')
-
-        elif not event.inaxes:
-            ax1.clear()
-            ax2.clear()
-
-        plt.draw()
-
-    fig, ((ax0, ax3), (ax1, ax2)) = plt.subplots(2, 2)
-    im = ax0.imshow(np.nanmin(nominal_height, 2))
-    fig.colorbar(im, ax=ax0)
-
-    ax1.xaxis.set_label_text('Nominal height / m')
-    ax1.yaxis.set_label_text('Force / N')
-
-    fig.canvas.mpl_connect('button_press_event', on_click)
-
-    def fit_all_clicked(event):
-        cp, cperr, E, Eerr = fit_all(nominal_height, force, depth=indentation_depth)
-        fig, ((ax0, ax1), (ax3, ax5), (ax2, ax4)) = plt.subplots(3, 2)
-        im0 = ax0.imshow(np.nanmin(nominal_height, 2))
-        im2 = ax2.imshow(E)
-        im3 = ax3.imshow(cp)
-        im4 = ax4.imshow(Eerr)
-        im5 = ax5.imshow(cperr)
-        fig.colorbar(im0, ax=ax0)
-        fig.colorbar(im2, ax=ax2)
-        fig.colorbar(im3, ax=ax3)
-        fig.colorbar(im4, ax=ax4)
-        fig.colorbar(im5, ax=ax5)
-        def on_click(event):
-            if event.inaxes in [ax0,ax2,ax3,ax4,ax5]:
-                point = event.ydata, event.xdata
-                xdata = nominal_height[point]
-                ydata = force[point]
-                ax1.plot(xdata, subtract_baseline(xdata, ydata))
-                ax1.plot(xdata, hertz(xdata, cp[point], E[point]))
-                ax1.plot(cp[point], hertz(cp[point], cp[point], E[point]), '.')
-            else:
-                ax1.clear()
-            plt.draw()
-        fig.canvas.mpl_connect('button_press_event', on_click)
-        plt.show()
-    ax = plt.axes([0.8, 0.025, 0.1, 0.04])
-    button = matplotlib.widgets.Button(ax, 'Fit all')
-    button.on_clicked(fit_all_clicked)
-    plt.show()
 
 def hertz(x, xc, E, Rc=1e-6, nu=.5):
     F = 4.0/3 * E/(1-nu**2) * scipy.sqrt(Rc * (xc-x)**3)
@@ -186,18 +79,150 @@ def fit_all(nominal_height, force, depth=None, setpoint=None):
 
 plugin_type = "VOLUME"
 plugin_menu = "/Hertz fit"
+
+import gtk, gwy, site
+site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
+import gwyutils
+
 def run():
-    import gwy,  site
-    site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
-    import gwyutils
-    force = gwyutils.brick_data_as_array(gwy.data['/brick/0'])
-    nominal_height = gwyutils.brick_data_as_array(gwy.data['/brick/1'])
-    interactive(nominal_height, force)
+    global force_brick, height_brick
+    force_brick = gwy.data['/brick/0']
+    height_brick = gwy.data['/brick/1']
+    pascal = gwy.SIUnit()
+    pascal.set_from_string('Pa')
+    dialog = gtk.Dialog('Hertz fit', buttons=('Fit all', gtk.RESPONSE_ACCEPT))
+    dialog.connect('response', on_response)
+    def add_checkbutton(method, title, *args):
+        checkButton = gtk.CheckButton(title)
+        checkButton.connect('toggled', method, title, *args)
+        dialog.vbox.add(checkButton)
+    add_checkbutton(map, '2D map')
+    add_checkbutton(toggle_window, 'Force', force_brick.get_si_unit_w(), None, 'Distance')
+    add_checkbutton(toggle_window, 'Young modulus', pascal, 5, 'Indentation depth')
+    add_checkbutton(toggle_window, 'Young modulus standard error', pascal, 5, 'Indentation depth')
+    add_checkbutton(toggle_window, 'Contact point', height_brick.get_si_unit_w(), 5, 'Indentation depth')
+    add_checkbutton(toggle_window, 'Contact point standard error', height_brick.get_si_unit_w(), 5, 'Indentation depth')
+    dialog.show_all()
 
-if __name__ == "__main__":
-    jpkqidata = JpkQiData(sys.argv[1])
-    extend = jpkqidata.segment('extend')
-    nominal_height = extend.channel('capacitiveSensorHeight').calibrate('nominal')
-    force = extend.channel('vDeflection').calibrate('force')
+def on_response(dialog, response_id):
+    if response_id != gtk.RESPONSE_ACCEPT:
+        return
+    force = gwyutils.brick_data_as_array(force_brick)
+    height = gwyutils.brick_data_as_array(height_brick)
+    cp, cperr, E, Eerr = fit_all(height, force)
+    def add_datafield(index, data, title, unit):
+        datafield = gwy.DataField(height_brick.get_xres(), height_brick.get_yres(),
+                                  height_brick.get_xreal(), height_brick.get_yreal(), False)
+        datafield.set_si_unit_xy(height_brick.get_si_unit_x())
+        datafield.set_si_unit_z(unit)
+        mask = np.isinf(data)
+        data[mask] = 0
+        gwyutils.data_field_set_data(datafield, data)
+        key = '/{}/data'.format(index)
+        gwy.data[key] = datafield
+        gwy.data[key + '/title'] = title
+    pascal = gwy.SIUnit()
+    pascal.set_from_string('Pa')
+    add_datafield(0, E, 'Young modulus', pascal)
+    add_datafield(1, Eerr, 'Young modulus standard error', pascal)
+    add_datafield(2, cp, 'Contact point', height_brick.get_si_unit_w())
+    add_datafield(3, cperr, 'Contact point standard error', height_brick.get_si_unit_w())
+    dialog.destroy()
 
-    interactive(nominal_height, force)
+def map(togglebutton, title):
+    def on_button_press(dataView, event):
+        global points
+        x, y = dataView.coords_xy_to_real(int(event.x), int(event.y))
+        points.append((x,y))
+        coords = '({:.1e},{:.1e})'.format(x,y)
+        i = force_brick.rtoi(x)
+        j = force_brick.rtoj(y)
+        force = gwyutils.brick_data_as_array(force_brick)[i,j]
+        height = gwyutils.brick_data_as_array(height_brick)[i,j]
+
+        def add_curve(title, xdata, ydata, description=None):
+            if title not in windows:
+                return
+            xdata = np.array(xdata)
+            ydata = np.array(ydata)
+            mask = np.isfinite(ydata)
+            graphCurveModel = gwy.GraphCurveModel()
+            graphCurveModel.set_data(xdata[mask].tolist(), ydata[mask].tolist(), len(xdata[mask]))
+            graphCurveModel.props.mode = 2  # GWY_GRAPH_CURVE_LINE
+            if description:
+                graphCurveModel.props.description = description + ' ' + coords
+            else:
+                graphCurveModel.props.description = coords
+            windows[title].get_graph().get_model().add_curve(graphCurveModel)
+
+        (cp, E), _ = fit(height, force)
+        add_curve('Force', height, subtract_baseline(height, force), 'data')
+        add_curve('Force', height, hertz(height, cp, E), 'fit')
+        add_curve('Force', [cp], [hertz(cp, cp, E)], 'contact point')
+
+        fit_region_start = find_fit_region_start(subtract_baseline(height, force))
+        cp = []
+        cperr = []
+        E = []
+        Eerr = []
+        for i in range(2, len(height)-fit_region_start):
+            popt, perr = fit(height, force, depthcount=i)
+            cp.append(popt[0])
+            cperr.append(perr[0])
+            E.append(popt[1])
+            Eerr.append(perr[1])
+        depth = height[fit_region_start] - height[fit_region_start:fit_region_start+i-1]
+        add_curve('Young modulus', depth, E)
+        add_curve('Young modulus standard error', depth, Eerr)
+        add_curve('Contact point', depth, cp)
+        add_curve('Contact point standard error', depth, cperr)
+
+    global dataWindow
+    if togglebutton.props.active:
+        layer = gwy.LayerBasic()
+        layer.set_data_key('/brick/1/preview')
+        dataView = gwy.DataView(gwy.data)
+        dataView.set_base_layer(layer)
+        dataView.connect('button-press-event', on_button_press)
+        dataWindow = gwy.DataWindow(dataView)
+        dataWindow.connect('delete-event', lambda a,b: togglebutton.set_active(False))
+        dataWindow.show_all()
+    else:
+        dataWindow.destroy()
+        del dataWindow
+
+windows = {}
+points = []
+def toggle_window(togglebutton, title, unit, status, label_bottom):
+    def on_selection_finished(selection):
+        for title, window in windows.iteritems():
+            window.get_graph().get_area().get_selection(5).set_data(1, selection.get_data())
+        for num, (x, y) in enumerate(points):
+            i = force_brick.rtoi(x)
+            j = force_brick.rtoj(y)
+            force = gwyutils.brick_data_as_array(force_brick)[i,j]
+            height = gwyutils.brick_data_as_array(height_brick)[i,j]
+            (cp, E), _ = fit(height, force, depth=selection.get_data()[0])
+            model = windows['Force'].get_graph().get_model()
+            model.get_curve(num*3 + 1).set_data(height.tolist(), hertz(height, cp, E).tolist(), len(force))
+            model.get_curve(num*3 + 2).set_data([cp], [hertz(cp, cp, E)], 1)
+
+    if togglebutton.props.active:
+        windows[title] = window = gwy.Graph(gwy.GraphModel()).window_new()
+        window.props.title = title
+        graph = window.get_graph()
+        if status:
+            graph.set_status(status)
+            graph.get_area().get_selection(status).connect('finished', on_selection_finished)
+        model = graph.get_model()
+        model.props.si_unit_x = height_brick.get_si_unit_w()
+        model.props.si_unit_y = unit
+        model.props.axis_label_bottom = label_bottom
+        model.props.axis_label_left = title
+        window.connect('delete-event', lambda a,b: togglebutton.set_active(False))
+        window.show_all()
+    else:
+        windows[title].destroy()
+        del windows[title]
+        if title == 'Force':
+            points.clear()
