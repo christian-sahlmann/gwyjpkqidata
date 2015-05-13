@@ -12,23 +12,24 @@ class Channel:
     def get_coefficients(self, conversion):
         """
         When there are no coefficients, the data should not change when recalibrating
-        >>> channel = Channel(1)
+        >>> channel = Channel()
+        >>> channel.lcd_info = 0
         >>> channel.shared_data = dict()
-        >>> channel.get_coefficients(0, 'volts')
+        >>> channel.get_coefficients('volts')
         (1.0, 0.0)
 
         When coefficients are specified, return them
         >>> channel.shared_data['lcd-info.0.conversion-set.conversion.distance.base-calibration-slot'] = 'volts'
         >>> channel.shared_data['lcd-info.0.conversion-set.conversion.distance.scaling.multiplier'] = 2
         >>> channel.shared_data['lcd-info.0.conversion-set.conversion.distance.scaling.offset'] = 3
-        >>> channel.get_coefficients(0, 'distance')
+        >>> channel.get_coefficients('distance')
         (2.0, 3.0)
 
         If the base calibration slot also has coefficients, calculate the resulting coefficients
         >>> channel.shared_data['lcd-info.0.conversion-set.conversion.force.base-calibration-slot'] = 'distance'
         >>> channel.shared_data['lcd-info.0.conversion-set.conversion.force.scaling.multiplier'] = 4
         >>> channel.shared_data['lcd-info.0.conversion-set.conversion.force.scaling.offset'] = 5
-        >>> channel.get_coefficients(0, 'force')
+        >>> channel.get_coefficients('force')
         (8.0, 5.5)
         """
         prefix = 'lcd-info.{}.conversion-set.conversion.{}.'.format(self.lcd_info, conversion)
@@ -83,11 +84,11 @@ class JpkQiData:
     >>> channel = jpkqidata.segment('extend').channel('vDeflection')
 
     Check if the channel has proper content
-    >>> channel[0, 0, 0]
+    >>> channel.data()[0, 0, 0]
     3.0
 
     If the channel data is too short to fill the channel, it gets set to NaN
-    >>> channel[0, 0, 1]
+    >>> channel.data()[0, 0, 1]
     nan
     """
     segment_styles = dict()
@@ -182,10 +183,6 @@ def load(filename, mode=None):
     """
     >>> container = load(file_path)
 
-    Check if the channel has proper content
-    >>> container['/0/data'].get_val(0,0)
-    0.0
-
     Check if the brick has proper units and content
     >>> brick = container['/brick/0']
     >>> import gwy
@@ -196,7 +193,7 @@ def load(filename, mode=None):
     >>> brick.get_si_unit_z().get_string(gwy.SI_UNIT_FORMAT_PLAIN)
     's'
     >>> brick.get_si_unit_w().get_string(gwy.SI_UNIT_FORMAT_PLAIN)
-    'V'
+    'm'
     >>> brick.get_val(0,0,0)
     3.0
 
@@ -211,16 +208,7 @@ def load(filename, mode=None):
 
     The title should be set correctly
     >>> container['/brick/0/title']
-    'extend vDeflection'
-
-    The metadata should be initialized
-    >>> meta = container['/brick/0/meta']
-    >>> meta['distance.name']
-    'Distance'
-    >>> container['/brick/1/meta']['force.name']
-    'Force'
-    >>> container['/brick/2/meta']['distance.name']
-    'Distance'
+    'retract vDeflection distance'
     """
     import gtk, gwy, site
     site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
@@ -249,12 +237,13 @@ def load(filename, mode=None):
     selection = treeView.get_selection()
     selection.set_mode(gtk.SELECTION_MULTIPLE)
     selection.set_select_function(lambda path: len(path)==3)
+    selection.select_all()
     dialog = gtk.Dialog(plugin_desc, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                                               gtk.STOCK_OK, gtk.RESPONSE_OK))
     dialog.vbox.add(treeView)
     dialog.show_all()
     container = gwy.Container()
-    if dialog.run() == gtk.RESPONSE_OK:
+    if mode == None or dialog.run() == gtk.RESPONSE_OK:
         treeStore, paths = selection.get_selected_rows()
         for bricknumber, path in enumerate(paths):
             segment_style = treeStore[path[:-2]][0]
@@ -312,10 +301,13 @@ if __name__ == "__main__":
         lcd-info.0.unit.unit=V
         lcd-info.0.encoder.scaling.offset=1
         lcd-info.0.encoder.scaling.multiplier=2
+        lcd-info.0.conversion-set.conversions.list=distance
         lcd-info.0.conversion-set.conversion.distance.name=Distance
+        lcd-info.0.conversion-set.conversion.distance.scaling.unit.unit=m
         lcd-info.1.unit.unit=V
         lcd-info.1.encoder.scaling.offset=1
         lcd-info.1.encoder.scaling.multiplier=2
+        lcd-info.1.conversion-set.conversions.list=force
         lcd-info.1.conversion-set.conversion.force.name=Force
         '''))
     f.writestr('index/0/header.properties', 'type=quantitative-imaging-series')
