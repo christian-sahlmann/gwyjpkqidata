@@ -3,26 +3,55 @@ import numpy as np
 import scipy.optimize
 
 def hertz(x, xc, E, Rc=1e-6, nu=.5):
+    """
+    >>> xdata = np.array([5,4,3,2,1])
+    >>> hertz(xdata, 4, 1, 1)
+    array([ 0.        ,  0.        ,  1.77777778,  5.02831489,  9.23760431])
+    """
     F = 4.0/3 * E/(1-nu**2) * scipy.sqrt(Rc * (xc-x)**3)
     return F.real
 
 def line(x, slope, offset):
+    """
+    >>> line(1, 2, 3)
+    5
+    """
     return x*slope + offset
 
-def threshold_level(data):
+def threshold_level(data, factor):
+    """
+    >>> threshold_level(np.array([5,4,3,2,1]), 5)
+    2.5
+    >>> xdata = np.array([1,2,3,4,5])
+    >>> ydata = hertz(xdata, 4, 1, 1)
+    >>> threshold_level(ydata, 1)
+    2.1046447092981704
+    """
     noise_level = data[ : len(data) * .4 ].std()
-    return 5 * noise_level
+    return factor * noise_level
 
-def find_fit_region_start(data):
+def find_fit_region_start(data, threshold_factor):
+    """
+    >>> xdata = np.array([5,4,3,2,1])
+    >>> ydata = hertz(xdata, 4, 1, 1)
+    >>> find_fit_region_start(ydata, 1)
+    2
+    """
     try:
-        fit_region_start = np.argwhere(data > threshold_level(data))[0,0]
+        fit_region_start = np.argwhere(data > threshold_level(data,threshold_factor))[0,0]
     except IndexError:
         fit_region_start = 0
     return fit_region_start
 
-def fit(xdata, ydata, depth=None, setpoint=None, depthcount=None):
+def fit(xdata, ydata, depth=None, setpoint=None, depthcount=None, threshold_factor=5):
+    """
+    >>> xdata = np.array([5,4,3,2,1])
+    >>> ydata = hertz(xdata, 4, 1, 1)
+    >>> fit(xdata, ydata)
+    (array([    4.,  1000.]), array([  1.02387605e-15,   6.26993478e-13]))
+    """
     ydata = subtract_baseline(xdata, ydata)
-    fit_region_start = find_fit_region_start(ydata)
+    fit_region_start = find_fit_region_start(ydata, threshold_factor)
     approximate_cp = xdata[fit_region_start]
 
     fit_region_end = len(xdata)
@@ -50,15 +79,21 @@ def fit(xdata, ydata, depth=None, setpoint=None, depthcount=None):
     return popt, perr
 
 def subtract_baseline(xdata, ydata):
+    """
+    >>> xdata = np.array([1,2,3,4,5])
+    >>> subtract_baseline(xdata,xdata)
+    array([  8.72857342e-13,  -4.36539693e-13,  -1.74615877e-12,
+            -3.05533376e-12,  -4.36450875e-12])
+    """
     baseline, _ = scipy.optimize.curve_fit(line,
                                            xdata[:len(xdata)*.4],
                                            ydata[:len(xdata)*.4])
     return ydata - line(xdata, *baseline)
 
-def fit_index(index, xdata, ydata, depth, setpoint):
-    return index, fit(xdata, ydata, depth, setpoint)
+def fit_index(index, xdata, ydata, depth, setpoint, threshold_factor):
+    return index, fit(xdata, ydata, depth, setpoint, threshold_factor=threshold_factor)
 
-def fit_all(nominal_height, force, depth=None, setpoint=None):
+def fit_all(nominal_height, force, depth=None, setpoint=None, threshold_factor=5):
     cp = np.empty(force.shape[:2])
     cperr = np.empty(force.shape[:2])
     E = np.empty(force.shape[:2])
@@ -72,7 +107,7 @@ def fit_all(nominal_height, force, depth=None, setpoint=None):
 
     pool = multiprocessing.Pool()
     for index in np.ndindex(E.shape):
-        pool.apply_async(fit_index, (index, nominal_height[index], force[index], depth, setpoint), callback=fit_callback)
+        pool.apply_async(fit_index, (index, nominal_height[index], force[index], depth, setpoint, threshold_factor), callback=fit_callback)
 
     pool.close()
     pool.join()
@@ -87,13 +122,26 @@ site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
 import gwyutils
 
 def run():
+    """
+    >>> gwy.data = gwy.Container()
+    >>> gwy.data['/brick/0'] = gwy.Brick(1,1,1,1,1,1,True)
+    >>> gwy.data['/brick/1'] = gwy.Brick(1,1,1,1,1,1,True)
+    >>> run()
+    """
     global force_brick, height_brick
-    force_brick = gwy.data['/brick/0']
-    height_brick = gwy.data['/brick/1']
+    force_brick = gwy.data['/brick/1']
+    height_brick = gwy.data['/brick/0']
     pascal = gwy.SIUnit()
     pascal.set_from_string('Pa')
     dialog = gtk.Dialog('Hertz fit', buttons=('Fit all', gtk.RESPONSE_ACCEPT))
     dialog.connect('response', on_response)
+
+    spinButton = gtk.SpinButton()
+    spinButton.set_range(1,10)
+    spinButton.set_increments(1,2)
+    spinButton.set_value(5)
+    dialog.vbox.add(spinButton)
+
     def add_checkbutton(method, title, *args):
         checkButton = gtk.CheckButton(title)
         checkButton.connect('toggled', method, title, *args)
@@ -104,6 +152,7 @@ def run():
     add_checkbutton(toggle_window, 'Young modulus standard error', pascal, 5, 'Indentation depth')
     add_checkbutton(toggle_window, 'Contact point', height_brick.get_si_unit_w(), 5, 'Indentation depth')
     add_checkbutton(toggle_window, 'Contact point standard error', height_brick.get_si_unit_w(), 5, 'Indentation depth')
+
     dialog.show_all()
 
 def on_response(dialog, response_id):
@@ -111,7 +160,7 @@ def on_response(dialog, response_id):
         return
     force = gwyutils.brick_data_as_array(force_brick)
     height = gwyutils.brick_data_as_array(height_brick)
-    cp, cperr, E, Eerr = fit_all(height, force, depth=indentation_depth)
+    cp, cperr, E, Eerr = fit_all(height, force, depth=indentation_depth, threshold_factor=threshold_factor)
     def add_datafield(index, data, title, unit):
         datafield = gwy.DataField(height_brick.get_xres(), height_brick.get_yres(),
                                   height_brick.get_xreal(), height_brick.get_yreal(), False)
@@ -158,20 +207,20 @@ def map(togglebutton, title):
                 graphCurveModel.props.description = coords
             windows[title].get_graph().get_model().add_curve(graphCurveModel)
 
-        (cp, E), _ = fit(height, force)
-        threshold = threshold_level(force)
+        (cp, E), _ = fit(height, force, threshold_factor=threshold_factor)
+        threshold = threshold_level(force, threshold_factor)
         add_curve('Force', height, subtract_baseline(height, force), 'data')
         add_curve('Force', height, hertz(height, cp, E), 'fit')
         add_curve('Force', [cp], [hertz(cp, cp, E)], 'contact point', mode=3)
         add_curve('Force', [height.min(), height.max()], [threshold, threshold], 'threshold level', line_style=gtk.gdk.LINE_ON_OFF_DASH)
 
-        fit_region_start = find_fit_region_start(subtract_baseline(height, force))
+        fit_region_start = find_fit_region_start(subtract_baseline(height, force), threshold_factor)
         cp = []
         cperr = []
         E = []
         Eerr = []
         for i in range(2, len(height)-fit_region_start):
-            popt, perr = fit(height, force, depthcount=i)
+            popt, perr = fit(height, force, depthcount=i, threshold_factor=threshold_factor)
             cp.append(popt[0])
             cperr.append(perr[0])
             E.append(popt[1])
@@ -185,7 +234,7 @@ def map(togglebutton, title):
     global dataWindow
     if togglebutton.props.active:
         layer = gwy.LayerBasic()
-        layer.set_data_key('/brick/1/preview')
+        layer.set_data_key('/brick/0/preview')
         dataView = gwy.DataView(gwy.data)
         dataView.set_base_layer(layer)
         dataView.connect('button-press-event', on_button_press)
@@ -199,6 +248,7 @@ def map(togglebutton, title):
 windows = {}
 points = []
 indentation_depth = None
+threshold_factor = 5
 def toggle_window(togglebutton, title, unit, status, label_bottom):
     def on_selection_finished(selection):
         global indentation_depth
@@ -210,7 +260,7 @@ def toggle_window(togglebutton, title, unit, status, label_bottom):
             j = force_brick.rtoj(y)
             force = gwyutils.brick_data_as_array(force_brick)[i,j]
             height = gwyutils.brick_data_as_array(height_brick)[i,j]
-            (cp, E), _ = fit(height, force, depth=indentation_depth)
+            (cp, E), _ = fit(height, force, depth=indentation_depth, threshold_factor=threshold_factor)
             model = windows['Force'].get_graph().get_model()
             model.get_curve(num*3 + 1).set_data(height.tolist(), hertz(height, cp, E).tolist(), len(force))
             model.get_curve(num*3 + 2).set_data([cp], [hertz(cp, cp, E)], 1)
@@ -232,5 +282,10 @@ def toggle_window(togglebutton, title, unit, status, label_bottom):
     else:
         windows[title].destroy()
         del windows[title]
-        if title == 'Force':
-            points.clear()
+
+if __name__ == "__main__":
+    import jpkqidata
+    import sys
+    gwy.data = jpkqidata.load(sys.argv[1])
+    run()
+    gtk.main()
