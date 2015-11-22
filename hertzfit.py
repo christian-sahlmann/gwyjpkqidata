@@ -2,6 +2,7 @@ import multiprocessing
 import numpy as np
 import scipy.optimize
 
+
 def hertz(x, xc, E, Rc=1e-6, nu=.5):
     """
     >>> xdata = np.array([5,4,3,2,1])
@@ -11,12 +12,14 @@ def hertz(x, xc, E, Rc=1e-6, nu=.5):
     F = 4.0/3 * E/(1-nu**2) * scipy.sqrt(Rc * (xc-x)**3)
     return F.real
 
+
 def line(x, slope, offset):
     """
     >>> line(1, 2, 3)
     5
     """
     return x*slope + offset
+
 
 def threshold_level(data, factor):
     """
@@ -30,6 +33,7 @@ def threshold_level(data, factor):
     noise_level = data[ : len(data) * .4 ].std()
     return factor * noise_level
 
+
 def find_fit_region_start(data, threshold_factor):
     """
     >>> xdata = np.array([5,4,3,2,1])
@@ -42,6 +46,7 @@ def find_fit_region_start(data, threshold_factor):
     except IndexError:
         fit_region_start = 0
     return fit_region_start
+
 
 def fit(xdata, ydata, depth=None, setpoint=None, depthcount=None, threshold_factor=5):
     """
@@ -78,6 +83,7 @@ def fit(xdata, ydata, depth=None, setpoint=None, depthcount=None, threshold_fact
 
     return popt, perr
 
+
 def subtract_baseline(xdata, ydata):
     """
     >>> xdata = np.array([1,2,3,4,5])
@@ -90,8 +96,10 @@ def subtract_baseline(xdata, ydata):
                                            ydata[:len(xdata)*.4])
     return ydata - line(xdata, *baseline)
 
+
 def fit_index(index, xdata, ydata, depth, setpoint, threshold_factor):
     return index, fit(xdata, ydata, depth, setpoint, threshold_factor=threshold_factor)
+
 
 def fit_all(nominal_height, force, depth=None, setpoint=None, threshold_factor=5):
     cp = np.empty(force.shape[:2])
@@ -121,6 +129,12 @@ import gtk, gwy, site
 site.addsitedir(gwy.gwy_find_self_dir('data')+'/pygwy')
 import gwyutils
 
+dataView = None
+forceGraph = gwy.Graph(gwy.GraphModel())
+youngGraph = gwy.Graph(gwy.GraphModel())
+youngErrorGraph = gwy.Graph(gwy.GraphModel())
+indentationDepthEntry = gtk.Entry()
+
 def run():
     """
     >>> gwy.data = gwy.Container()
@@ -129,31 +143,84 @@ def run():
     >>> run()
     """
     global force_brick, height_brick
-    force_brick = gwy.data['/brick/1']
-    height_brick = gwy.data['/brick/0']
+    for key in gwy.data.keys_by_name():
+        if key.endswith('/title'):
+            title = gwy.data[key]
+            brick = gwy.data[key[:-6]]
+            if title == 'extend vDeflection force':
+                force_brick = brick
+            if title == 'extend height calibrated':
+                height_brick = brick
+    dialog = gtk.Window()
+    dialog.add(gtk.HBox())
+    right = gtk.VBox()
+    left = gtk.VBox()
+    dialog.child.add(left)
+    dialog.child.add(right)
+
+    forceModel = forceGraph.get_model()
+    forceModel.props.si_unit_x = height_brick.get_si_unit_w()
+    forceModel.props.si_unit_y = force_brick.get_si_unit_w()
+    forceModel.props.axis_label_bottom = 'Distance'
+    forceModel.props.axis_label_left = 'Force'
+    forceGraphWindow = gwy.Graph.window_new(forceGraph)
+    forceGraphWindowChild = forceGraphWindow.child
+    forceGraphWindow.remove(forceGraphWindowChild)
+    right.add(forceGraphWindowChild)
+
+    base_layer = gwy.LayerBasic()
+    base_layer.props.data_key = '/brick/0/preview'
+    global dataView
+    dataView = gwy.DataView(gwy.data)
+    dataView.set_base_layer(base_layer)
+    dataWindow = gwy.DataWindow(dataView)
+    dataWindowChild = dataWindow.child
+    dataWindow.remove(dataWindowChild)
+    import gobject
+    top_layer = gobject.new("GwyLayerPoint")
+    dataView.set_top_layer(top_layer)
+    top_layer.props.selection_key = "/0/select/pointer"
+    top_layer.props.point_numbers = True
+    selection = top_layer.ensure_selection()
+    selection.props.max_objects = 10
+    selection.connect('finished', on_dataView_button_press)
+    rightbottom = gtk.HBox()
+    rightbottom.add(dataWindowChild)
+    controls = gtk.VBox()
+    rightbottom.add(controls)
+    controls.add(indentationDepthEntry)
+    controls.add(gtk.Button("Fit all"))
+    right.add(rightbottom)
+
     pascal = gwy.SIUnit()
     pascal.set_from_string('Pa')
-    dialog = gtk.Dialog('Hertz fit', buttons=('Fit all', gtk.RESPONSE_ACCEPT))
-    dialog.connect('response', on_response)
 
-    spinButton = gtk.SpinButton()
-    spinButton.set_range(1,10)
-    spinButton.set_increments(1,2)
-    spinButton.set_value(5)
-    dialog.vbox.add(spinButton)
+    youngErrorModel = youngErrorGraph.get_model()
+    youngErrorModel.props.si_unit_x = height_brick.get_si_unit_w()
+    youngErrorModel.props.si_unit_y = pascal
+    youngErrorModel.props.axis_label_bottom = 'Indentation depth'
+    youngErrorModel.props.axis_label_left = 'Young modulus standard error'
+    youngErrorGraph.set_status(gwy.GRAPH_STATUS_XLINES)
+    youngErrorGraph.get_area().get_selection(gwy.GRAPH_STATUS_XLINES).connect('finished', on_selection_finished)
+    youngErrorGraphWindow = gwy.Graph.window_new(youngErrorGraph)
+    youngErrorGraphWindowChild = youngErrorGraphWindow.child
+    youngErrorGraphWindow.remove(youngErrorGraphWindowChild)
+    left.add(youngErrorGraphWindowChild)
 
-    def add_checkbutton(method, title, *args):
-        checkButton = gtk.CheckButton(title)
-        checkButton.connect('toggled', method, title, *args)
-        dialog.vbox.add(checkButton)
-    add_checkbutton(map, '2D map')
-    add_checkbutton(toggle_window, 'Force', force_brick.get_si_unit_w(), None, 'Distance')
-    add_checkbutton(toggle_window, 'Young modulus', pascal, 5, 'Indentation depth')
-    add_checkbutton(toggle_window, 'Young modulus standard error', pascal, 5, 'Indentation depth')
-    add_checkbutton(toggle_window, 'Contact point', height_brick.get_si_unit_w(), 5, 'Indentation depth')
-    add_checkbutton(toggle_window, 'Contact point standard error', height_brick.get_si_unit_w(), 5, 'Indentation depth')
+    youngModel = youngGraph.get_model()
+    youngModel.props.si_unit_x = height_brick.get_si_unit_w()
+    youngModel.props.si_unit_y = pascal
+    youngModel.props.axis_label_bottom = 'Indentation depth'
+    youngModel.props.axis_label_left = 'Young modulus'
+    youngGraph.set_status(gwy.GRAPH_STATUS_XLINES)
+    youngGraph.get_area().get_selection(gwy.GRAPH_STATUS_XLINES).connect('finished', on_selection_finished)
+    youngGraphWindow = gwy.Graph.window_new(youngGraph)
+    youngGraphWindowChild = youngGraphWindow.child
+    youngGraphWindow.remove(youngGraphWindowChild)
+    left.add(youngGraphWindowChild)
 
     dialog.show_all()
+
 
 def on_response(dialog, response_id):
     if response_id != gtk.RESPONSE_ACCEPT:
@@ -180,109 +247,93 @@ def on_response(dialog, response_id):
     add_datafield(3, cperr, 'Contact point standard error', height_brick.get_si_unit_w())
     dialog.destroy()
 
-def map(togglebutton, title):
-    def on_button_press(dataView, event):
-        global points
-        x, y = dataView.coords_xy_to_real(int(event.x), int(event.y))
-        points.append((x,y))
-        coords = '({:.1e},{:.1e})'.format(x,y)
+
+def on_dataView_button_press(selection):
+
+    def add_curve(graph_model, xdata, ydata, description=None, mode=2, line_style=gtk.gdk.LINE_SOLID):
+        xdata = np.array(xdata)
+        ydata = np.array(ydata)
+        mask = np.isfinite(ydata)
+        if len(xdata[mask]) == 0:
+            return
+        graphCurveModel = gwy.GraphCurveModel()
+        graphCurveModel.set_data(xdata[mask].tolist(), ydata[mask].tolist(), len(xdata[mask]))
+        graphCurveModel.props.mode = mode
+        graphCurveModel.props.line_style = line_style
+        if description:
+            graphCurveModel.props.description = description + ' ' + str(num+1)
+        else:
+            graphCurveModel.props.description = str(num+1)
+        graph_model.add_curve(graphCurveModel)
+
+    data = selection.get_data()
+    fit_region_start = []
+    force = []
+    height = []
+    cp = []
+    cperr = []
+    E = []
+    Eerr = []
+    forceGraphModel = gwy.GraphModel()
+    try:
+        depth = float(indentationDepthEntry.props.text)
+    except ValueError:
+        depth = None
+    for num in range(len(data)/2):
+        x, y = data[num:num+2]
         i = force_brick.rtoi(x)
         j = force_brick.rtoj(y)
-        force = gwyutils.brick_data_as_array(force_brick)[i,j]
-        height = gwyutils.brick_data_as_array(height_brick)[i,j]
+        force.append(gwyutils.brick_data_as_array(force_brick)[i,j])
+        height.append(gwyutils.brick_data_as_array(height_brick)[i,j])
+        add_curve(forceGraphModel, height[num], subtract_baseline(height[num], force[num]), 'data')
 
-        def add_curve(title, xdata, ydata, description=None, mode=2, line_style=gtk.gdk.LINE_SOLID):
-            if title not in windows:
-                return
-            xdata = np.array(xdata)
-            ydata = np.array(ydata)
-            mask = np.isfinite(ydata)
-            graphCurveModel = gwy.GraphCurveModel()
-            graphCurveModel.set_data(xdata[mask].tolist(), ydata[mask].tolist(), len(xdata[mask]))
-            graphCurveModel.props.mode = mode
-            graphCurveModel.props.line_style = line_style
-            if description:
-                graphCurveModel.props.description = description + ' ' + coords
-            else:
-                graphCurveModel.props.description = coords
-            windows[title].get_graph().get_model().add_curve(graphCurveModel)
+        (cp1, E1), _ = fit(height[num], force[num], depth=depth, threshold_factor=threshold_factor)
+        add_curve(forceGraphModel, height[num], hertz(height[num], cp1, E1), 'fit')
+        add_curve(forceGraphModel, [cp1], [hertz(cp1, cp1, E1)], 'contact point', mode=3)
 
-        (cp, E), _ = fit(height, force, threshold_factor=threshold_factor)
-        threshold = threshold_level(force, threshold_factor)
-        add_curve('Force', height, subtract_baseline(height, force), 'data')
-        add_curve('Force', height, hertz(height, cp, E), 'fit')
-        add_curve('Force', [cp], [hertz(cp, cp, E)], 'contact point', mode=3)
-        add_curve('Force', [height.min(), height.max()], [threshold, threshold], 'threshold level', line_style=gtk.gdk.LINE_ON_OFF_DASH)
+        threshold = threshold_level(force[num], threshold_factor)
+        add_curve(forceGraphModel, [height[num].min(), height[num].max()], [threshold, threshold], 'threshold level', line_style=gtk.gdk.LINE_ON_OFF_DASH)
+        fit_region_start.append(find_fit_region_start(subtract_baseline(height[num], force[num]), threshold_factor))
+        cp.append([])
+        cperr.append([])
+        E.append([])
+        Eerr.append([])
+    forceGraph.get_model().remove_all_curves()
+    forceGraph.get_model().append_curves(forceGraphModel, 4)
 
-        fit_region_start = find_fit_region_start(subtract_baseline(height, force), threshold_factor)
-        cp = []
-        cperr = []
-        E = []
-        Eerr = []
-        for i in range(2, len(height)-fit_region_start):
-            popt, perr = fit(height, force, depthcount=i, threshold_factor=threshold_factor)
-            cp.append(popt[0])
-            cperr.append(perr[0])
-            E.append(popt[1])
-            Eerr.append(perr[1])
-        depth = height[fit_region_start] - height[fit_region_start:fit_region_start+i-1]
-        add_curve('Young modulus', depth, E)
-        add_curve('Young modulus standard error', depth, Eerr)
-        add_curve('Contact point', depth, cp)
-        add_curve('Contact point standard error', depth, cperr)
+    for i in range(2, len(height[num])-fit_region_start[num]):
+        youngGraphModel = gwy.GraphModel()
+        youngErrorGraphModel = gwy.GraphModel()
+        for num in range(len(data)/2):
+            popt, perr = fit(height[num], force[num], depthcount=i, threshold_factor=threshold_factor)
+            cp[num].append(popt[0])
+            cperr[num].append(perr[0])
+            E[num].append(popt[1])
+            Eerr[num].append(perr[1])
+            depth = height[num][fit_region_start[num]] - height[num][fit_region_start[num]:fit_region_start[num]+i-1]
+            add_curve(youngGraphModel, depth, E[num])
+            add_curve(youngErrorGraphModel, depth, Eerr[num])
+        youngGraph.get_model().remove_all_curves()
+        youngGraph.get_model().append_curves(youngGraphModel, 1)
+        youngErrorGraph.get_model().remove_all_curves()
+        youngErrorGraph.get_model().append_curves(youngErrorGraphModel, 1)
+        gtk.main_iteration(False)
+    #add_curve('Contact point', depth, cp)
+    #add_curve('Contact point standard error', depth, cperr)
 
-    global dataWindow
-    if togglebutton.props.active:
-        layer = gwy.LayerBasic()
-        layer.set_data_key('/brick/0/preview')
-        dataView = gwy.DataView(gwy.data)
-        dataView.set_base_layer(layer)
-        dataView.connect('button-press-event', on_button_press)
-        dataWindow = gwy.DataWindow(dataView)
-        dataWindow.connect('delete-event', lambda a,b: togglebutton.set_active(False))
-        dataWindow.show_all()
-    else:
-        dataWindow.destroy()
-        del dataWindow
 
-windows = {}
-points = []
-indentation_depth = None
+def on_selection_finished(selection):
+    update_indentation_depth(selection.get_data()[0])
+
+def update_indentation_depth(indentation_depth):
+    youngErrorGraph.get_area().get_selection(gwy.GRAPH_STATUS_XLINES).set_data(1, [indentation_depth])
+    youngGraph.get_area().get_selection(gwy.GRAPH_STATUS_XLINES).set_data(1, [indentation_depth])
+    indentationDepthEntry.props.text = indentation_depth
+    dataViewSelection = dataView.get_top_layer().ensure_selection()
+    on_dataView_button_press(dataViewSelection)
+
+
 threshold_factor = 5
-def toggle_window(togglebutton, title, unit, status, label_bottom):
-    def on_selection_finished(selection):
-        global indentation_depth
-        indentation_depth = selection.get_data()[0]
-        for title, window in windows.iteritems():
-            window.get_graph().get_area().get_selection(5).set_data(1, selection.get_data())
-        for num, (x, y) in enumerate(points):
-            i = force_brick.rtoi(x)
-            j = force_brick.rtoj(y)
-            force = gwyutils.brick_data_as_array(force_brick)[i,j]
-            height = gwyutils.brick_data_as_array(height_brick)[i,j]
-            (cp, E), _ = fit(height, force, depth=indentation_depth, threshold_factor=threshold_factor)
-            model = windows['Force'].get_graph().get_model()
-            model.get_curve(num*3 + 1).set_data(height.tolist(), hertz(height, cp, E).tolist(), len(force))
-            model.get_curve(num*3 + 2).set_data([cp], [hertz(cp, cp, E)], 1)
-
-    if togglebutton.props.active:
-        windows[title] = window = gwy.Graph(gwy.GraphModel()).window_new()
-        window.props.title = title
-        graph = window.get_graph()
-        if status:
-            graph.set_status(status)
-            graph.get_area().get_selection(status).connect('finished', on_selection_finished)
-        model = graph.get_model()
-        model.props.si_unit_x = height_brick.get_si_unit_w()
-        model.props.si_unit_y = unit
-        model.props.axis_label_bottom = label_bottom
-        model.props.axis_label_left = title
-        window.connect('delete-event', lambda a,b: togglebutton.set_active(False))
-        window.show_all()
-    else:
-        windows[title].destroy()
-        del windows[title]
-
 if __name__ == "__main__":
     import jpkqidata
     import sys
