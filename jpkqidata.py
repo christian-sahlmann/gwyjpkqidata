@@ -32,15 +32,18 @@ class Channel:
         >>> channel.get_coefficients('force')
         (8.0, 5.5)
         """
-        prefix = 'lcd-info.{}.conversion-set.conversion.{}.'.format(self.lcd_info, conversion)
         try:
-            base_calibration_slot = self.shared_data[prefix + 'base-calibration-slot']
-            multiplier = float(self.shared_data[prefix + 'scaling.multiplier'])
-            offset = float(self.shared_data[prefix + 'scaling.offset'])
+            base_calibration_slot = self.shared_data['lcd-info.{}.conversion-set.conversion.{}.base-calibration-slot'.format(self.lcd_info, conversion)]
+            multiplier = self.scaling(conversion, 'multiplier')
+            offset = self.scaling(conversion, 'offset')
             base_multiplier, base_offset = self.get_coefficients(base_calibration_slot)
             return base_multiplier * multiplier, base_offset + offset / base_multiplier
         except KeyError:
             return 1.0, 0.0
+
+    def scaling(self, conversion, scaling):
+        key = 'lcd-info.{}.conversion-set.conversion.{}.scaling.{}'.format(self.lcd_info, conversion, scaling)
+        return float(self.shared_data[key])
 
     def calibrate(self, conversion):
         multiplier, offset = self.get_coefficients(conversion)
