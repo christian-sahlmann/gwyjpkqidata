@@ -107,14 +107,7 @@ class JpkQiData:
         """
         try:
             self.zipfile = zipfile.ZipFile(filename)
-
             self.header = self.read_properties('header.properties')
-            self.ilength = int(self.header['quantitative-imaging-map.position-pattern.grid.ilength'])
-            self.jlength = int(self.header['quantitative-imaging-map.position-pattern.grid.jlength'])
-            self.ulength = float(self.header['quantitative-imaging-map.position-pattern.grid.ulength'])
-            self.vlength = float(self.header['quantitative-imaging-map.position-pattern.grid.vlength'])
-            self.grid_unit = self.header['quantitative-imaging-map.position-pattern.grid.unit.unit']
-
             self.shared_data = self.read_properties('shared-data/header.properties')
             segment_count = int(self.shared_data['force-segment-header-infos.count'])
             for segment_number in range(segment_count):
@@ -124,11 +117,29 @@ class JpkQiData:
         except (zipfile.BadZipfile, KeyError):
             raise JpkQiDataException
 
+    def grid(self, name):
+        return self.header['quantitative-imaging-map.position-pattern.grid.{}'.format(name)]
+
+    def ilength(self):
+        return int(self.grid('ilength'))
+
+    def jlength(self):
+        return int(self.grid('jlength'))
+
+    def ulength(self):
+        return float(self.grid('ulength'))
+
+    def vlength(self):
+        return float(self.grid('vlength'))
+
+    def grid_unit(self):
+        return self.grid('unit.unit')
+
     def segment(self, segment_style):
         segment = Segment()
         segment.zipfile = self.zipfile
-        segment.ilength = self.ilength
-        segment.jlength = self.jlength
+        segment.ilength = self.ilength()
+        segment.jlength = self.jlength()
         segment.num_points = int(self.header['quantitative-imaging-map.settings.force-settings.{}.num-points'.format(segment_style)])
         segment.duration = float(self.header['quantitative-imaging-map.settings.force-settings.{}.duration'.format(segment_style)])
         segment.number = self.segment_styles[segment_style]
@@ -256,11 +267,12 @@ def load(filename, mode=None):
             conversion = treeStore[path][2]
             brick_data = channel.calibrate(conversion)
             ilength, jlength, num_points = brick_data.shape
-            brick = gwy.Brick(ilength, jlength, num_points, jpkqidata.ulength, jpkqidata.vlength, segment.duration, False)
+            brick = gwy.Brick(ilength, jlength, num_points, jpkqidata.ulength(), jpkqidata.vlength(), segment.duration, False)
             gwyutils.brick_set_data(brick, brick_data)
 
-            brick.get_si_unit_x().set_from_string(jpkqidata.grid_unit)
-            brick.get_si_unit_y().set_from_string(jpkqidata.grid_unit)
+            grid_unit = jpkqidata.grid_unit()
+            brick.get_si_unit_x().set_from_string(grid_unit)
+            brick.get_si_unit_y().set_from_string(grid_unit)
             brick.get_si_unit_z().set_from_string('s')
             unit = treeStore[path][1]
             if unit:
